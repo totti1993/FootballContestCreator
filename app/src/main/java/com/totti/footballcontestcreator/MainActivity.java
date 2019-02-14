@@ -12,9 +12,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener {
+
+	private ArrayList<String> teams = new ArrayList<>(Arrays.asList("FC Barcelona", "Real Madrid", "FTC", "Videoton", "Manchester City", "Chelsea"));
+	private ArrayList<String> tournaments = new ArrayList<>(Arrays.asList("La Liga", "NB1", "Premier League", "Copa del Rey", "FA Cup"));
+	private ArrayList<String> currentListItems = new ArrayList<>();
+	private ArrayAdapter<String> listAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +39,10 @@ public class MainActivity extends AppCompatActivity
 		setContentView(R.layout.activity_main);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+
+		listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, currentListItems);
+		ListView listView = (ListView) findViewById(R.id.main_list);
+		listView.setAdapter(listAdapter);
 
 		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 		fab.setOnClickListener(new View.OnClickListener() {
@@ -81,18 +95,33 @@ public class MainActivity extends AppCompatActivity
 		return super.onOptionsItemSelected(item);
 	}
 
-	@SuppressWarnings("StatementWithEmptyBody")
 	@Override
 	public boolean onNavigationItemSelected(MenuItem item) {
-		// Handle navigation view item clicks here.
 		int id = item.getItemId();
 
-		if(id == R.id.nav_tournaments) {
-			// Handle the camera action
-		} else if(id == R.id.nav_teams) {
-
-		} else if(id == R.id.nav_favorites) {
-
+		switch(id) {
+			case R.id.nav_tournaments:
+				listAdapter.clear();
+				listAdapter.addAll(tournaments);
+				listAdapter.notifyDataSetChanged();
+				this.setTitle("Tournaments");
+				break;
+			case R.id.nav_teams:
+				listAdapter.clear();
+				listAdapter.addAll(teams);
+				listAdapter.notifyDataSetChanged();
+				this.setTitle("Teams");
+				break;
+			case R.id.nav_favorites:
+				listAdapter.clear();
+				this.setTitle("Favorites");
+				break;
+			case R.id.nav_settings:
+				listAdapter.clear();
+				this.setTitle("Settings");
+				break;
+			default:
+				break;
 		}
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
