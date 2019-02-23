@@ -1,8 +1,12 @@
 package com.totti.footballcontestcreator;
 
+import android.arch.persistence.room.Room;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,19 +16,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.totti.footballcontestcreator.adapters.TournamentAdapter;
+import com.totti.footballcontestcreator.database.AppDatabase;
+import com.totti.footballcontestcreator.database.Tournament;
+import com.totti.footballcontestcreator.fragments.NewTournamentDialogFragment;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-		implements NavigationView.OnNavigationItemSelectedListener {
+		implements NavigationView.OnNavigationItemSelectedListener, NewTournamentDialogFragment.NewTournamentDialogListener, TournamentAdapter.TournamentClickListener {
 
-	private ArrayList<String> teams = new ArrayList<>(Arrays.asList("FC Barcelona", "Real Madrid", "FTC", "Videoton", "Manchester City", "Chelsea"));
-	private ArrayList<String> tournaments = new ArrayList<>(Arrays.asList("La Liga", "NB1", "Premier League", "Copa del Rey", "FA Cup"));
-	private ArrayList<String> currentListItems = new ArrayList<>();
-	private ArrayAdapter<String> listAdapter;
+	private RecyclerView recyclerView;
+	private TournamentAdapter adapter;
+
+	private AppDatabase database;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,35 +43,53 @@ public class MainActivity extends AppCompatActivity
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, currentListItems);
-		ListView listView = (ListView) findViewById(R.id.main_list);
-		listView.setAdapter(listAdapter);
-
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		FloatingActionButton fab = findViewById(R.id.fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-						.setAction("Action", null).show();
+				new NewTournamentDialogFragment().show(getSupportFragmentManager(), NewTournamentDialogFragment.TAG);
 			}
 		});
 
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
 				this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 		drawer.addDrawerListener(toggle);
 		toggle.syncState();
 
-		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+		NavigationView navigationView = findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
+
+		database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "fcc").build();
+
+		recyclerView = findViewById(R.id.recycler_view_main);
+		adapter = new TournamentAdapter(this);
+		loadItemsInBackground();
+		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		recyclerView.setAdapter(adapter);
+	}
+
+	private void loadItemsInBackground() {
+		new AsyncTask<Void, Void, List<Tournament>>() {
+
+			@Override
+			protected List<Tournament> doInBackground(Void... voids) {
+				return database.tournamentDao().getAllTournaments();
+			}
+
+			@Override
+			protected void onPostExecute(List<Tournament> tournaments) {
+				adapter.update(tournaments);
+			}
+		}.execute();
 	}
 
 	@Override
 	public void onBackPressed() {
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		if(drawer.isDrawerOpen(GravityCompat.START)) {
 			drawer.closeDrawer(GravityCompat.START);
 		} else {
@@ -101,23 +125,15 @@ public class MainActivity extends AppCompatActivity
 
 		switch(id) {
 			case R.id.nav_tournaments:
-				listAdapter.clear();
-				listAdapter.addAll(tournaments);
-				listAdapter.notifyDataSetChanged();
 				this.setTitle("Tournaments");
 				break;
 			case R.id.nav_teams:
-				listAdapter.clear();
-				listAdapter.addAll(teams);
-				listAdapter.notifyDataSetChanged();
 				this.setTitle("Teams");
 				break;
 			case R.id.nav_favorites:
-				listAdapter.clear();
 				this.setTitle("Favorites");
 				break;
 			case R.id.nav_settings:
-				listAdapter.clear();
 				this.setTitle("Settings");
 				break;
 			default:
@@ -127,5 +143,39 @@ public class MainActivity extends AppCompatActivity
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.closeDrawer(GravityCompat.START);
 		return true;
+	}
+
+	@Override
+	public void onTournamentCreated(final Tournament newTournament) {
+		new AsyncTask<Void, Void, Tournament>() {
+
+			@Override
+			protected Tournament doInBackground(Void... voids) {
+				newTournament.setId(database.tournamentDao().insert(newTournament));
+				return newTournament;
+			}
+
+			@Override
+			protected void onPostExecute(Tournament tournament) {
+				adapter.addItem(tournament);
+			}
+		}.execute();
+	}
+
+	@Override
+	public void onTournamentChanged(final Tournament tournament) {
+		new AsyncTask<Void, Void, Boolean>() {
+
+			@Override
+			protected Boolean doInBackground(Void... voids) {
+				database.tournamentDao().update(tournament);
+				return true;
+			}
+
+			@Override
+			protected void onPostExecute(Boolean isSuccessful) {
+				Log.d("MainActivity", "Tournament update was successful");
+			}
+		}.execute();
 	}
 }
