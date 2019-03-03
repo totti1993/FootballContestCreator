@@ -1,5 +1,6 @@
 package com.totti.footballcontestcreator.adapters;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,15 +14,25 @@ import com.totti.footballcontestcreator.database.Tournament;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.TournamentViewHolder> {
+public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAdapter.TournamentViewHolder> {
 
-	private final List<Tournament> tournaments;
+	class TournamentViewHolder extends RecyclerView.ViewHolder {
 
-	private TournamentClickListener listener;
+		TextView nameTextView;
+		TextView typeTextView;
 
-	public TournamentAdapter(TournamentClickListener listener) {
+		TournamentViewHolder(View tournamentView) {
+			super(tournamentView);
+
+			nameTextView = tournamentView.findViewById(R.id.TournamentNameTextView);
+			typeTextView = tournamentView.findViewById(R.id.TournamentTypeTextView);
+		}
+	}
+
+	private List<Tournament> tournaments;
+
+	public TournamentListAdapter(Context context) {
 		tournaments = new ArrayList<>();
-		this.listener = listener;
 	}
 
 	@NonNull
@@ -35,7 +46,7 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.To
 	public void onBindViewHolder(@NonNull TournamentViewHolder holder, int position) {
 		Tournament tournament = tournaments.get(position);
 		holder.nameTextView.setText(tournament.getName());
-		holder.typeTextView.setText(tournament.getType().name());
+		holder.typeTextView.setText(tournament.getType());
 	}
 
 	@Override
@@ -43,31 +54,9 @@ public class TournamentAdapter extends RecyclerView.Adapter<TournamentAdapter.To
 		return tournaments.size();
 	}
 
-	public void addItem(Tournament tournament) {
-		tournaments.add(tournament);
-		notifyItemInserted(tournaments.size() - 1);
-	}
-
-	public void update(List<Tournament> tournaments) {
+	public void setTournaments(List<Tournament> tournaments) {
 		this.tournaments.clear();
 		this.tournaments.addAll(tournaments);
 		notifyDataSetChanged();
-	}
-
-	public interface TournamentClickListener {
-		void onTournamentChanged(Tournament tournament);
-	}
-
-	class TournamentViewHolder extends RecyclerView.ViewHolder {
-
-		TextView nameTextView;
-		TextView typeTextView;
-
-		TournamentViewHolder(View tournamentView) {
-			super(tournamentView);
-
-			nameTextView = tournamentView.findViewById(R.id.TournamentNameTextView);
-			typeTextView = tournamentView.findViewById(R.id.TournamentTypeTextView);
-		}
 	}
 }

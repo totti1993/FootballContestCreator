@@ -2,57 +2,38 @@ package com.totti.footballcontestcreator.database;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-//import android.arch.persistence.room.Index;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverter;
+import android.support.annotation.NonNull;
 
-@Entity(tableName = "tournament"/*, indices = {@Index(value = "name", unique = true)}*/)
+@Entity(tableName = "tournament", indices = {@Index(value = "name", unique = true)})
 public class Tournament {
-
-	public enum Type {
-		CHAMPIONSHIP,
-		ELIMINATION;
-
-		@TypeConverter
-		public static Type toType(int ordinal) {
-			Type returnType = null;
-
-			for(Type type : Type.values()) {
-				if(type.ordinal() == ordinal) {
-					returnType = type;
-					break;
-				}
-			}
-
-			return returnType;
-		}
-
-		@TypeConverter
-		public static int toInt(Type type) {
-			return type.ordinal();
-		}
-	}
 
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
+	@NonNull
 	private Long id;
 
 	@ColumnInfo(name = "name")
+	@NonNull
 	private String name;
 
 	@ColumnInfo(name = "type")
-	private Type type;
+	@NonNull
+	private String type;
 
-	@ColumnInfo(name = "teams")
-	private Integer teams;
+	/*@ColumnInfo(name = "teams")
+	@NonNull
+	private Integer teams;*/
 
 	@ColumnInfo(name = "rounds")
+	@NonNull
 	private Integer rounds;
 
 	@ColumnInfo(name = "comments")
 	private String comments;
 
-	public Tournament(String name, Type type, /*Integer teams,*/ Integer rounds, String comments) {
+	public Tournament(@NonNull String name, @NonNull String type, /*@NonNull Integer teams,*/ @NonNull Integer rounds, String comments) {
 		this.name = name;
 		this.type = type;
 		//this.teams = teams;
@@ -60,43 +41,49 @@ public class Tournament {
 		this.comments = comments;
 	}
 
+	@NonNull
 	public Long getId() {
 		return this.id;
 	}
 
-	public void setId(Long id) {
+	public void setId(@NonNull Long id) {
 		this.id = id;
 	}
 
+	@NonNull
 	public String getName() {
 		return this.name;
 	}
 
-	public void setName(String name) {
+	public void setName(@NonNull String name) {
 		this.name = name;
 	}
 
-	public Type getType() {
+	@NonNull
+	public String getType() {
 		return this.type;
 	}
 
-	public void setType(Type type) {
+	public void setType(@NonNull String type) {
 		this.type = type;
 	}
 
+	/*
+	@NonNull
 	public Integer getTeams() {
 		return this.teams;
 	}
 
-	public void setTeams(Integer teams) {
+	public void setTeams(@NonNull Integer teams) {
 		this.teams = teams;
-	}
+	}*/
 
+	@NonNull
 	public Integer getRounds() {
 		return this.rounds;
 	}
 
-	public void setRounds(Integer rounds) {
+	public void setRounds(@NonNull Integer rounds) {
 		this.rounds = rounds;
 	}
 

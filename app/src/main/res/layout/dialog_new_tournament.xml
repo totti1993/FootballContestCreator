@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="@dimen/big_padding">
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,12 +16,12 @@
         android:id="@+id/TournamentNameEditText"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"/>
+        android:layout_gravity="center_horizontal" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/big_margin"
         android:text="@string/type" />
 
     <RadioGroup
@@ -35,7 +35,8 @@
             android:id="@+id/TournamentTypeCRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/championship" />
+            android:text="@string/championship"
+            android:checked="true" />
 
         <RadioButton
             android:id="@+id/TournamentTypeERadioButton"
@@ -48,7 +49,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/big_margin"
         android:text="@string/rounds" />
 
     <EditText
@@ -61,8 +62,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/comments"/>
+        android:layout_marginTop="@dimen/big_margin"
+        android:text="@string/comments" />
 
     <EditText
         android:id="@+id/TournamentCommentsEditText"

@@ -1,12 +1,12 @@
 package com.totti.footballcontestcreator;
 
-import android.arch.persistence.room.Room;
-import android.os.AsyncTask;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,20 +17,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.totti.footballcontestcreator.adapters.TournamentAdapter;
-import com.totti.footballcontestcreator.database.AppDatabase;
+import com.totti.footballcontestcreator.adapters.TournamentListAdapter;
 import com.totti.footballcontestcreator.database.Tournament;
 import com.totti.footballcontestcreator.fragments.NewTournamentDialogFragment;
+import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-		implements NavigationView.OnNavigationItemSelectedListener, NewTournamentDialogFragment.NewTournamentDialogListener, TournamentAdapter.TournamentClickListener {
+		implements NavigationView.OnNavigationItemSelectedListener, NewTournamentDialogFragment.NewTournamentDialogListener {
 
-	private RecyclerView recyclerView;
-	private TournamentAdapter adapter;
-
-	private AppDatabase database;
+	private TournamentViewModel tournamentViewModel;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +42,20 @@ public class MainActivity extends AppCompatActivity
 		setContentView(R.layout.activity_main);
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+
+		RecyclerView recyclerView = findViewById(R.id.recycler_view_main);
+		final TournamentListAdapter adapter = new TournamentListAdapter(this);
+		recyclerView.setAdapter(adapter);
+		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+		tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
+
+		tournamentViewModel.getAllTournaments().observe(this, new Observer<List<Tournament>>() {
+			@Override
+			public void onChanged(@Nullable List<Tournament> tournaments) {
+				adapter.setTournaments(tournaments);
+			}
+		});
 
 		FloatingActionButton fab = findViewById(R.id.fab);
 		fab.setOnClickListener(new View.OnClickListener() {
@@ -62,29 +73,6 @@ public class MainActivity extends AppCompatActivity
 
 		NavigationView navigationView = findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
-
-		database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "fcc").build();
-
-		recyclerView = findViewById(R.id.recycler_view_main);
-		adapter = new TournamentAdapter(this);
-		loadItemsInBackground();
-		recyclerView.setLayoutManager(new LinearLayoutManager(this));
-		recyclerView.setAdapter(adapter);
-	}
-
-	private void loadItemsInBackground() {
-		new AsyncTask<Void, Void, List<Tournament>>() {
-
-			@Override
-			protected List<Tournament> doInBackground(Void... voids) {
-				return database.tournamentDao().getAllTournaments();
-			}
-
-			@Override
-			protected void onPostExecute(List<Tournament> tournaments) {
-				adapter.update(tournaments);
-			}
-		}.execute();
 	}
 
 	@Override
@@ -92,7 +80,8 @@ public class MainActivity extends AppCompatActivity
 		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		if(drawer.isDrawerOpen(GravityCompat.START)) {
 			drawer.closeDrawer(GravityCompat.START);
-		} else {
+		}
+		else {
 			super.onBackPressed();
 		}
 	}
@@ -140,42 +129,13 @@ public class MainActivity extends AppCompatActivity
 				break;
 		}
 
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		DrawerLayout drawer = findViewById(R.id.drawer_layout);
 		drawer.closeDrawer(GravityCompat.START);
 		return true;
 	}
 
 	@Override
-	public void onTournamentCreated(final Tournament newTournament) {
-		new AsyncTask<Void, Void, Tournament>() {
-
-			@Override
-			protected Tournament doInBackground(Void... voids) {
-				newTournament.setId(database.tournamentDao().insert(newTournament));
-				return newTournament;
-			}
-
-			@Override
-			protected void onPostExecute(Tournament tournament) {
-				adapter.addItem(tournament);
-			}
-		}.execute();
-	}
-
-	@Override
-	public void onTournamentChanged(final Tournament tournament) {
-		new AsyncTask<Void, Void, Boolean>() {
-
-			@Override
-			protected Boolean doInBackground(Void... voids) {
-				database.tournamentDao().update(tournament);
-				return true;
-			}
-
-			@Override
-			protected void onPostExecute(Boolean isSuccessful) {
-				Log.d("MainActivity", "Tournament update was successful");
-			}
-		}.execute();
+	public void onTournamentCreated(Tournament newTournament) {
+		tournamentViewModel.insert(newTournament);
 	}
 }

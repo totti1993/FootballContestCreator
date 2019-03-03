@@ -84,12 +84,12 @@ public class NewTournamentDialogFragment extends DialogFragment {
 	private Tournament getTournament() {
 
 		String name = nameEditText.getText().toString();
-		Tournament.Type type = null;
+		String type = null;
 		if(typeRadioGroup.getCheckedRadioButtonId() == typeCRadioButton.getId()) {
-			type = Tournament.Type.CHAMPIONSHIP;
+			type = "Championship";
 		}
 		else if(typeRadioGroup.getCheckedRadioButtonId() == typeERadioButton.getId()) {
-			type = Tournament.Type.ELIMINATION;
+			type = "Elimination";
 		}
 		Integer rounds = Integer.parseInt(roundsEditText.getText().toString());
 		String comments = commentsEditText.getText().toString();

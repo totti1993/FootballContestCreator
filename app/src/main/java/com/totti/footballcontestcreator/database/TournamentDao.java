@@ -1,5 +1,6 @@
 package com.totti.footballcontestcreator.database;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface TournamentDao {
 
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
-	long insert(Tournament tournament);
+	void insert(Tournament tournament);
 
 	@Update(onConflict = OnConflictStrategy.IGNORE)
 	void update(Tournament tournament);
@@ -28,5 +29,5 @@ public interface TournamentDao {
 	Tournament findTournamentByName(String name);
 
 	@Query("SELECT * FROM tournament ORDER BY name ASC")
-	List<Tournament> getAllTournaments();
+	LiveData<List<Tournament>> findAllTournaments();
 }

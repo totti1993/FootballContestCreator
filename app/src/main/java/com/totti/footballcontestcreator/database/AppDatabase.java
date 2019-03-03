@@ -1,12 +1,27 @@
 package com.totti.footballcontestcreator.database;
 
 import android.arch.persistence.room.Database;
+import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
+import android.content.Context;
 
-@Database(entities = {Tournament.class}, version = 1)
-@TypeConverters(value = {Tournament.Type.class})
+@Database(entities = {Tournament.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
 
+	private static AppDatabase INSTANCE;
+
 	public abstract TournamentDao tournamentDao();
+
+	public static AppDatabase getDatabase(Context context) {
+		if(INSTANCE == null) {
+			synchronized (AppDatabase.class) {
+				if(INSTANCE == null) {
+					INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "fcc")
+							   .fallbackToDestructiveMigration().build();
+				}
+			}
+		}
+
+		return INSTANCE;
+	}
 }
