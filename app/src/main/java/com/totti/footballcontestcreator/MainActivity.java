@@ -16,18 +16,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.totti.footballcontestcreator.adapters.TeamListAdapter;
 import com.totti.footballcontestcreator.adapters.TournamentListAdapter;
+import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.database.Tournament;
+import com.totti.footballcontestcreator.fragments.NewTeamDialogFragment;
 import com.totti.footballcontestcreator.fragments.NewTournamentDialogFragment;
+import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-		implements NavigationView.OnNavigationItemSelectedListener, NewTournamentDialogFragment.NewTournamentDialogListener {
+		implements NavigationView.OnNavigationItemSelectedListener,
+				   NewTournamentDialogFragment.NewTournamentDialogListener,
+				   NewTeamDialogFragment.NewTeamDialogListener {
+
+	RecyclerView recyclerView;
+
+	TournamentListAdapter tournamentListAdapter;
+	TeamListAdapter teamListAdapter;
 
 	private TournamentViewModel tournamentViewModel;
+	private TeamViewModel teamViewModel;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,17 +56,24 @@ public class MainActivity extends AppCompatActivity
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		RecyclerView recyclerView = findViewById(R.id.recycler_view_main);
-		final TournamentListAdapter adapter = new TournamentListAdapter(this);
-		recyclerView.setAdapter(adapter);
+		recyclerView = findViewById(R.id.recycler_view_main);
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-		tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
+		tournamentListAdapter = new TournamentListAdapter(this);
+		teamListAdapter = new TeamListAdapter(this);
 
+		tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
 		tournamentViewModel.getAllTournaments().observe(this, new Observer<List<Tournament>>() {
 			@Override
 			public void onChanged(@Nullable List<Tournament> tournaments) {
-				adapter.setTournaments(tournaments);
+				tournamentListAdapter.setTournaments(tournaments);
+			}
+		});
+		teamViewModel = ViewModelProviders.of(this).get(TeamViewModel.class);
+		teamViewModel.getAllTeams().observe(this, new Observer<List<Team>>() {
+			@Override
+			public void onChanged(@Nullable List<Team> teams) {
+				teamListAdapter.setTeams(teams);
 			}
 		});
 
@@ -61,7 +81,12 @@ public class MainActivity extends AppCompatActivity
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				new NewTournamentDialogFragment().show(getSupportFragmentManager(), NewTournamentDialogFragment.TAG);
+				if (getTitle().equals("Tournaments")) {
+					new NewTournamentDialogFragment().show(getSupportFragmentManager(), NewTournamentDialogFragment.TAG);
+				}
+				else if (getTitle().equals("Teams")) {
+					new NewTeamDialogFragment().show(getSupportFragmentManager(), NewTeamDialogFragment.TAG);
+				}
 			}
 		});
 
@@ -115,9 +140,11 @@ public class MainActivity extends AppCompatActivity
 		switch(id) {
 			case R.id.nav_tournaments:
 				this.setTitle("Tournaments");
+				recyclerView.setAdapter(tournamentListAdapter);
 				break;
 			case R.id.nav_teams:
 				this.setTitle("Teams");
+				recyclerView.setAdapter(teamListAdapter);
 				break;
 			case R.id.nav_favorites:
 				this.setTitle("Favorites");
@@ -137,5 +164,12 @@ public class MainActivity extends AppCompatActivity
 	@Override
 	public void onTournamentCreated(Tournament newTournament) {
 		tournamentViewModel.insert(newTournament);
+		Toast.makeText(this, "Tournament \"" + newTournament.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onTeamCreated(Team newTeam) {
+		teamViewModel.insert(newTeam);
+		Toast.makeText(this, "Team \"" + newTeam.getName() + "\" created!", Toast.LENGTH_SHORT).show();
 	}
 }

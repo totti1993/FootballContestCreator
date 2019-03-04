@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.database.Tournament;
@@ -56,6 +57,9 @@ public class NewTournamentDialogFragment extends DialogFragment {
 						if (isValid()) {
 							listener.onTournamentCreated(getTournament());
 						}
+						else {
+							Toast.makeText(getActivity(), "Tournament not created!", Toast.LENGTH_SHORT).show();
+						}
 					}
 				})
 				.setNegativeButton(R.string.cancel, null)
@@ -82,7 +86,6 @@ public class NewTournamentDialogFragment extends DialogFragment {
 	}
 
 	private Tournament getTournament() {
-
 		String name = nameEditText.getText().toString();
 		String type = null;
 		if(typeRadioGroup.getCheckedRadioButtonId() == typeCRadioButton.getId()) {
