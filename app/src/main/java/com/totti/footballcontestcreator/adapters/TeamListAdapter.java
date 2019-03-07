@@ -1,6 +1,5 @@
 package com.totti.footballcontestcreator.adapters;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,21 +15,54 @@ import java.util.List;
 
 public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamViewHolder> {
 
+	private List<Team> teams;
+
+	public interface OnTeamSelectedListener {
+		void onTeamClicked(String team);
+		void onTeamLongClicked(Team team);
+	}
+
+	private OnTeamSelectedListener listener;
+
+	public TeamListAdapter(OnTeamSelectedListener listener) {
+		teams = new ArrayList<>();
+		this.listener = listener;
+	}
+
 	class TeamViewHolder extends RecyclerView.ViewHolder {
 
 		TextView nameTextView;
 
-		TeamViewHolder(View teamView) {
+		TeamViewHolder(final View teamView) {
 			super(teamView);
 
 			nameTextView = teamView.findViewById(R.id.TeamNameTextView);
+
+			teamView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(listener != null) {
+						listener.onTeamClicked(nameTextView.getText().toString());
+					}
+				}
+			});
+
+			teamView.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					if(listener != null) {
+						for(Team team : teams) {
+							if(team.getName().equals(nameTextView.getText().toString())) {
+								listener.onTeamLongClicked(team);
+								break;
+							}
+						}
+						return true;
+					}
+					return false;
+				}
+			});
 		}
-	}
-
-	private List<Team> teams;
-
-	public TeamListAdapter(Context context) {
-		teams = new ArrayList<>();
 	}
 
 	@NonNull

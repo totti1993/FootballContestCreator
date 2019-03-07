@@ -12,7 +12,7 @@ public class Team {
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
 	@NonNull
-	private Long id;
+	private Integer id;
 
 	@ColumnInfo(name = "name")
 	@NonNull
@@ -47,11 +47,11 @@ public class Team {
 	}
 
 	@NonNull
-	public Long getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(@NonNull Long id) {
+	public void setId(@NonNull Integer id) {
 		this.id = id;
 	}
 

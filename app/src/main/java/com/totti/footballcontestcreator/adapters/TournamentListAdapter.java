@@ -1,8 +1,8 @@
 package com.totti.footballcontestcreator.adapters;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,20 @@ import java.util.List;
 
 public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAdapter.TournamentViewHolder> {
 
+	private List<Tournament> tournaments;
+
+	public interface OnTournamentSelectedListener {
+		void onTournamentClicked(String tournament);
+		void onTournamentLongClicked(Tournament tournament);
+	}
+
+	private OnTournamentSelectedListener listener;
+
+	public TournamentListAdapter(OnTournamentSelectedListener listener) {
+		tournaments = new ArrayList<>();
+		this.listener = listener;
+	}
+
 	class TournamentViewHolder extends RecyclerView.ViewHolder {
 
 		TextView nameTextView;
@@ -26,13 +40,32 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 
 			nameTextView = tournamentView.findViewById(R.id.TournamentNameTextView);
 			typeTextView = tournamentView.findViewById(R.id.TournamentTypeTextView);
+
+			tournamentView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if(listener != null) {
+						listener.onTournamentClicked(nameTextView.getText().toString());
+					}
+				}
+			});
+
+			tournamentView.setOnLongClickListener(new View.OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					if(listener != null) {
+						for(Tournament tournament : tournaments) {
+							if(tournament.getName().equals(nameTextView.getText().toString())) {
+								listener.onTournamentLongClicked(tournament);
+								break;
+							}
+						}
+						return true;
+					}
+					return false;
+				}
+			});
 		}
-	}
-
-	private List<Tournament> tournaments;
-
-	public TournamentListAdapter(Context context) {
-		tournaments = new ArrayList<>();
 	}
 
 	@NonNull

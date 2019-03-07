@@ -12,7 +12,7 @@ public class Tournament {
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
 	@NonNull
-	private Long id;
+	private Integer id;
 
 	@ColumnInfo(name = "name")
 	@NonNull
@@ -42,11 +42,11 @@ public class Tournament {
 	}
 
 	@NonNull
-	public Long getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(@NonNull Long id) {
+	public void setId(@NonNull Integer id) {
 		this.id = id;
 	}
 

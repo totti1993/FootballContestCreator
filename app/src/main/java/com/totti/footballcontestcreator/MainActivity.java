@@ -2,9 +2,11 @@ package com.totti.footballcontestcreator;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -31,13 +33,15 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 		implements NavigationView.OnNavigationItemSelectedListener,
+				   TournamentListAdapter.OnTournamentSelectedListener,
+				   TeamListAdapter.OnTeamSelectedListener,
 				   NewTournamentDialogFragment.NewTournamentDialogListener,
 				   NewTeamDialogFragment.NewTeamDialogListener {
 
-	RecyclerView recyclerView;
+	private RecyclerView recyclerView;
 
-	TournamentListAdapter tournamentListAdapter;
-	TeamListAdapter teamListAdapter;
+	private TournamentListAdapter tournamentListAdapter;
+	private TeamListAdapter teamListAdapter;
 
 	private TournamentViewModel tournamentViewModel;
 	private TeamViewModel teamViewModel;
@@ -168,8 +172,54 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
+	public void onTournamentClicked(String tournament) {
+		Toast.makeText(this, "Tournament \"" + tournament + "\" clicked!", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onTournamentLongClicked(final Tournament tournament) {
+		new AlertDialog.Builder(this).setMessage("Are you sure you want to delete tournament \"" + tournament.getName() + "\"?")
+						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								tournamentViewModel.delete(tournament);
+								Toast.makeText(MainActivity.this, "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+							}
+						})
+						.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Toast.makeText(MainActivity.this, "Tournament \"" + tournament.getName() + "\" not deleted!", Toast.LENGTH_SHORT).show();
+							}
+						}).show();
+	}
+
+	@Override
 	public void onTeamCreated(Team newTeam) {
 		teamViewModel.insert(newTeam);
 		Toast.makeText(this, "Team \"" + newTeam.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onTeamClicked(String team) {
+		Toast.makeText(this, "Team \"" + team + "\" clicked!", Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	public void onTeamLongClicked(final Team team) {
+		new AlertDialog.Builder(this).setMessage("Are you sure you want to delete team \"" + team.getName() + "\"?")
+						.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								teamViewModel.delete(team);
+								Toast.makeText(MainActivity.this, "Team \"" + team.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+							}
+						})
+						.setNegativeButton("No", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Toast.makeText(MainActivity.this, "Team \"" + team.getName() + "\" not deleted!", Toast.LENGTH_SHORT).show();
+							}
+						}).show();
 	}
 }
