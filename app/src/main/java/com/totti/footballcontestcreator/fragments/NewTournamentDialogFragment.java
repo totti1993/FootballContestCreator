@@ -97,6 +97,6 @@ public class NewTournamentDialogFragment extends DialogFragment {
 		Integer rounds = Integer.parseInt(roundsEditText.getText().toString());
 		String comments = commentsEditText.getText().toString();
 
-		return  new Tournament(name, type, rounds, comments);
+		return new Tournament(name, type, rounds, comments);
 	}
 }

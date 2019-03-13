@@ -37,6 +37,10 @@ public class Team {
 	@ColumnInfo(name = "comments")
 	private String comments;
 
+	@ColumnInfo(name = "favorite")
+	@NonNull
+	private Boolean favorite;
+
 	public Team(@NonNull String name, String comments) {
 		this.name = name;
 		this.trophies = 0;
@@ -44,6 +48,7 @@ public class Team {
 		this.all_time_draws = 0;
 		this.all_time_losses = 0;
 		this.comments = comments;
+		this.favorite = false;
 	}
 
 	@NonNull
@@ -106,5 +111,14 @@ public class Team {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	@NonNull
+	public Boolean getFavorite() {
+		return this.favorite;
+	}
+
+	public void setFavorite(@NonNull Boolean favorite) {
+		this.favorite = favorite;
 	}
 }

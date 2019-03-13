@@ -33,12 +33,17 @@ public class Tournament {
 	@ColumnInfo(name = "comments")
 	private String comments;
 
+	@ColumnInfo(name = "favorite")
+	@NonNull
+	private Boolean favorite;
+
 	public Tournament(@NonNull String name, @NonNull String type, /*@NonNull Integer teams,*/ @NonNull Integer rounds, String comments) {
 		this.name = name;
 		this.type = type;
 		//this.teams = teams;
 		this.rounds = rounds;
 		this.comments = comments;
+		this.favorite = false;
 	}
 
 	@NonNull
@@ -93,5 +98,14 @@ public class Tournament {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	@NonNull
+	public Boolean getFavorite() {
+		return this.favorite;
+	}
+
+	public void setFavorite(@NonNull Boolean favorite) {
+		this.favorite = favorite;
 	}
 }

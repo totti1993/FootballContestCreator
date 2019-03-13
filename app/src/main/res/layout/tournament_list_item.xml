@@ -3,24 +3,40 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/small_padding"
-    android:paddingTop="@dimen/small_padding"
-    android:paddingLeft="@dimen/big_padding"
-    android:paddingRight="@dimen/big_padding">
+    android:orientation="horizontal"
+    android:padding="@dimen/small_padding">
 
-    <TextView
-        android:id="@+id/TournamentNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="#000000"/>
+    <ToggleButton
+        android:id="@+id/TournamentFavoriteToggleButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="center_vertical"
+        android:paddingRight="@dimen/small_padding"
+        android:textOff=""
+        android:textOn="" />
 
-    <TextView
-        android:id="@+id/TournamentTypeTextView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="#444444"/>
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="@dimen/small_padding"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/TournamentNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/TournamentTypeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold|italic"
+            android:textSize="15sp"
+            android:textColor="#444444"/>
+
+    </LinearLayout>
 
 </LinearLayout>

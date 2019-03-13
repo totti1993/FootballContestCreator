@@ -172,8 +172,8 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onTournamentClicked(String tournament) {
-		Toast.makeText(this, "Tournament \"" + tournament + "\" clicked!", Toast.LENGTH_SHORT).show();
+	public void onTournamentClicked(Tournament tournament) {
+		Toast.makeText(this, "Tournament \"" + tournament.getName() + "\" clicked!", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -186,12 +186,19 @@ public class MainActivity extends AppCompatActivity
 								Toast.makeText(MainActivity.this, "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
 							}
 						})
-						.setNegativeButton("No", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								Toast.makeText(MainActivity.this, "Tournament \"" + tournament.getName() + "\" not deleted!", Toast.LENGTH_SHORT).show();
-							}
-						}).show();
+						.setNegativeButton("No", null)
+						.show();
+	}
+
+	@Override
+	public void onTournamentStarClicked(Tournament tournament) {
+		tournamentViewModel.update(tournament);
+		if(tournament.getFavorite()) {
+			Toast.makeText(this, "Tournament \"" + tournament.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			Toast.makeText(this, "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	@Override
@@ -201,8 +208,8 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onTeamClicked(String team) {
-		Toast.makeText(this, "Team \"" + team + "\" clicked!", Toast.LENGTH_SHORT).show();
+	public void onTeamClicked(Team team) {
+		Toast.makeText(this, "Team \"" + team.getName() + "\" clicked!", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
@@ -215,11 +222,18 @@ public class MainActivity extends AppCompatActivity
 								Toast.makeText(MainActivity.this, "Team \"" + team.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
 							}
 						})
-						.setNegativeButton("No", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								Toast.makeText(MainActivity.this, "Team \"" + team.getName() + "\" not deleted!", Toast.LENGTH_SHORT).show();
-							}
-						}).show();
+						.setNegativeButton("No", null)
+						.show();
+	}
+
+	@Override
+	public void onTeamStarClicked(Team team) {
+		teamViewModel.update(team);
+		if(team.getFavorite()) {
+			Toast.makeText(this, "Team \"" + team.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			Toast.makeText(this, "Team \"" + team.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+		}
 	}
 }

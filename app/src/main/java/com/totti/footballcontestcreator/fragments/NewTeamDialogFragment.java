@@ -78,6 +78,6 @@ public class NewTeamDialogFragment extends DialogFragment {
 		String name = nameEditText.getText().toString();
 		String comments = commentsEditText.getText().toString();
 
-		return  new Team(name, comments);
+		return new Team(name, comments);
 	}
 }

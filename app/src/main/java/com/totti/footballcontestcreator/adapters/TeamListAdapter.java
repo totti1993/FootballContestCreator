@@ -5,7 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.database.Team;
@@ -18,8 +20,9 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 	private List<Team> teams;
 
 	public interface OnTeamSelectedListener {
-		void onTeamClicked(String team);
+		void onTeamClicked(Team team);
 		void onTeamLongClicked(Team team);
+		void onTeamStarClicked(Team team);
 	}
 
 	private OnTeamSelectedListener listener;
@@ -32,17 +35,21 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 	class TeamViewHolder extends RecyclerView.ViewHolder {
 
 		TextView nameTextView;
+		ToggleButton favoriteToggleButton;
+
+		Team team;
 
 		TeamViewHolder(final View teamView) {
 			super(teamView);
 
 			nameTextView = teamView.findViewById(R.id.TeamNameTextView);
+			favoriteToggleButton = teamView.findViewById(R.id.TeamFavoriteToggleButton);
 
 			teamView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if(listener != null) {
-						listener.onTeamClicked(nameTextView.getText().toString());
+					if(team != null) {
+						listener.onTeamClicked(team);
 					}
 				}
 			});
@@ -50,16 +57,21 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 			teamView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
-					if(listener != null) {
-						for(Team team : teams) {
-							if(team.getName().equals(nameTextView.getText().toString())) {
-								listener.onTeamLongClicked(team);
-								break;
-							}
-						}
+					if(team != null) {
+						listener.onTeamLongClicked(team);
 						return true;
 					}
 					return false;
+				}
+			});
+
+			favoriteToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if(team != null) {
+						team.setFavorite(isChecked);
+						listener.onTeamStarClicked(team);
+					}
 				}
 			});
 		}
@@ -76,6 +88,15 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 	public void onBindViewHolder(@NonNull TeamViewHolder holder, int position) {
 		Team team = teams.get(position);
 		holder.nameTextView.setText(team.getName());
+		if(team.getFavorite()) {
+			holder.favoriteToggleButton.setChecked(true);
+			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_green);
+		}
+		else {
+			holder.favoriteToggleButton.setChecked(false);
+			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_border_grey);
+		}
+		holder.team = team;
 	}
 
 	@Override

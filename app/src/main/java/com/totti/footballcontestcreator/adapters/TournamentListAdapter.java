@@ -2,11 +2,12 @@ package com.totti.footballcontestcreator.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.database.Tournament;
@@ -19,8 +20,9 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 	private List<Tournament> tournaments;
 
 	public interface OnTournamentSelectedListener {
-		void onTournamentClicked(String tournament);
+		void onTournamentClicked(Tournament tournament);
 		void onTournamentLongClicked(Tournament tournament);
+		void onTournamentStarClicked(Tournament tournament);
 	}
 
 	private OnTournamentSelectedListener listener;
@@ -34,18 +36,22 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 
 		TextView nameTextView;
 		TextView typeTextView;
+		ToggleButton favoriteToggleButton;
 
-		TournamentViewHolder(View tournamentView) {
+		Tournament tournament;
+
+		TournamentViewHolder(final View tournamentView) {
 			super(tournamentView);
 
 			nameTextView = tournamentView.findViewById(R.id.TournamentNameTextView);
 			typeTextView = tournamentView.findViewById(R.id.TournamentTypeTextView);
+			favoriteToggleButton = tournamentView.findViewById(R.id.TournamentFavoriteToggleButton);
 
 			tournamentView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if(listener != null) {
-						listener.onTournamentClicked(nameTextView.getText().toString());
+					if(tournament != null) {
+						listener.onTournamentClicked(tournament);
 					}
 				}
 			});
@@ -53,16 +59,21 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 			tournamentView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
-					if(listener != null) {
-						for(Tournament tournament : tournaments) {
-							if(tournament.getName().equals(nameTextView.getText().toString())) {
-								listener.onTournamentLongClicked(tournament);
-								break;
-							}
-						}
+					if(tournament != null) {
+						listener.onTournamentLongClicked(tournament);
 						return true;
 					}
 					return false;
+				}
+			});
+
+			favoriteToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+				@Override
+				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+					if(tournament != null) {
+						tournament.setFavorite(isChecked);
+						listener.onTournamentStarClicked(tournament);
+					}
 				}
 			});
 		}
@@ -80,6 +91,15 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 		Tournament tournament = tournaments.get(position);
 		holder.nameTextView.setText(tournament.getName());
 		holder.typeTextView.setText(tournament.getType());
+		if(tournament.getFavorite()) {
+			holder.favoriteToggleButton.setChecked(true);
+			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_green);
+		}
+		else {
+			holder.favoriteToggleButton.setChecked(false);
+			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_border_grey);
+		}
+		holder.tournament = tournament;
 	}
 
 	@Override

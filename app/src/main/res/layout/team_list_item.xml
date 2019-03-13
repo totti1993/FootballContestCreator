@@ -3,17 +3,25 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/small_padding"
-    android:paddingTop="@dimen/small_padding"
-    android:paddingLeft="@dimen/big_padding"
-    android:paddingRight="@dimen/big_padding">
+    android:orientation="horizontal"
+    android:padding="@dimen/small_padding">
+
+    <ToggleButton
+        android:id="@+id/TeamFavoriteToggleButton"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="center_vertical"
+        android:paddingRight="@dimen/small_padding"
+        android:textOff=""
+        android:textOn="" />
 
     <TextView
         android:id="@+id/TeamNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="@dimen/small_padding"
+        android:textSize="25sp"
         android:textColor="#000000"/>
 
 </LinearLayout>
