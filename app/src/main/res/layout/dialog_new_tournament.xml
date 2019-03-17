@@ -1,74 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:orientation="vertical"
     android:padding="@dimen/big_padding">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/name" />
-
-    <EditText
-        android:id="@+id/TournamentNameEditText"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/big_margin"
-        android:text="@string/type" />
-
-    <RadioGroup
-        android:id="@+id/TournamentTypeRadioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/TournamentTypeCRadioButton"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/championship"
-            android:checked="true" />
+            android:text="@string/name" />
 
-        <RadioButton
-            android:id="@+id/TournamentTypeERadioButton"
+        <EditText
+            android:id="@+id/TournamentNameEditText"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/elimination" />
+            android:layout_marginTop="@dimen/big_margin"
+            android:text="@string/type" />
 
-    </RadioGroup>
+        <RadioGroup
+            android:id="@+id/TournamentTypeRadioGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/big_margin"
-        android:text="@string/rounds" />
+            <RadioButton
+                android:id="@+id/TournamentTypeCRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/championship"
+                android:checked="true" />
 
-    <EditText
-        android:id="@+id/TournamentRoundsEditText"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:inputType="numberDecimal" />
+            <RadioButton
+                android:id="@+id/TournamentTypeERadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/elimination" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/big_margin"
-        android:text="@string/comments" />
+        </RadioGroup>
 
-    <EditText
-        android:id="@+id/TournamentCommentsEditText"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/big_margin"
+            android:text="@string/rounds" />
 
-</LinearLayout>
+        <EditText
+            android:id="@+id/TournamentRoundsEditText"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:inputType="numberDecimal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/big_margin"
+            android:text="@string/teams" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/TournamentTeamsRecyclerView"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center_horizontal"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/big_margin"
+            android:text="@string/comments" />
+
+        <EditText
+            android:id="@+id/TournamentCommentsEditText"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+</ScrollView>

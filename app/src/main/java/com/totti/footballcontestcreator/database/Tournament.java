@@ -11,7 +11,6 @@ public class Tournament {
 
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
-	@NonNull
 	private Integer id;
 
 	@ColumnInfo(name = "name")
@@ -22,13 +21,13 @@ public class Tournament {
 	@NonNull
 	private String type;
 
-	/*@ColumnInfo(name = "teams")
-	@NonNull
-	private Integer teams;*/
-
 	@ColumnInfo(name = "rounds")
 	@NonNull
 	private Integer rounds;
+
+	@ColumnInfo(name = "teams")
+	@NonNull
+	private Integer teams;
 
 	@ColumnInfo(name = "comments")
 	private String comments;
@@ -37,21 +36,20 @@ public class Tournament {
 	@NonNull
 	private Boolean favorite;
 
-	public Tournament(@NonNull String name, @NonNull String type, /*@NonNull Integer teams,*/ @NonNull Integer rounds, String comments) {
+	public Tournament(@NonNull String name, @NonNull String type, @NonNull Integer rounds, @NonNull Integer teams, String comments) {
 		this.name = name;
 		this.type = type;
-		//this.teams = teams;
 		this.rounds = rounds;
+		this.teams = teams;
 		this.comments = comments;
 		this.favorite = false;
 	}
 
-	@NonNull
 	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(@NonNull Integer id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -73,16 +71,6 @@ public class Tournament {
 		this.type = type;
 	}
 
-	/*
-	@NonNull
-	public Integer getTeams() {
-		return this.teams;
-	}
-
-	public void setTeams(@NonNull Integer teams) {
-		this.teams = teams;
-	}*/
-
 	@NonNull
 	public Integer getRounds() {
 		return this.rounds;
@@ -90,6 +78,15 @@ public class Tournament {
 
 	public void setRounds(@NonNull Integer rounds) {
 		this.rounds = rounds;
+	}
+
+	@NonNull
+	public Integer getTeams() {
+		return this.teams;
+	}
+
+	public void setTeams(@NonNull Integer teams) {
+		this.teams = teams;
 	}
 
 	public String getComments() {

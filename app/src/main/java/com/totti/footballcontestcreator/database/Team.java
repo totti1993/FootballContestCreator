@@ -11,7 +11,6 @@ public class Team {
 
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
-	@NonNull
 	private Integer id;
 
 	@ColumnInfo(name = "name")
@@ -41,6 +40,10 @@ public class Team {
 	@NonNull
 	private Boolean favorite;
 
+	@ColumnInfo(name = "selected")
+	@NonNull
+	private Boolean selected;
+
 	public Team(@NonNull String name, String comments) {
 		this.name = name;
 		this.trophies = 0;
@@ -49,14 +52,14 @@ public class Team {
 		this.all_time_losses = 0;
 		this.comments = comments;
 		this.favorite = false;
+		this.selected = false;
 	}
 
-	@NonNull
 	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(@NonNull Integer id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -120,5 +123,14 @@ public class Team {
 
 	public void setFavorite(@NonNull Boolean favorite) {
 		this.favorite = favorite;
+	}
+
+	@NonNull
+	public Boolean getSelected() {
+		return this.selected;
+	}
+
+	public void setSelected(@NonNull Boolean selected) {
+		this.selected = selected;
 	}
 }

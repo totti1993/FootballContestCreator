@@ -22,12 +22,6 @@ public interface TournamentDao {
 	@Delete
 	void delete(Tournament tournament);
 
-	@Query("SELECT * FROM tournament WHERE id = :id")
-	Tournament findTournamentByKey(Integer id);
-
-	@Query("SELECT * FROM tournament WHERE name = :name")
-	Tournament findTournamentByName(String name);
-
-	@Query("SELECT * FROM tournament ORDER BY name ASC")
+	@Query("SELECT * FROM tournament")
 	LiveData<List<Tournament>> findAllTournaments();
 }

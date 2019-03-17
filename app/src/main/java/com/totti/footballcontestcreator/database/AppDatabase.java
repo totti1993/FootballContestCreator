@@ -5,7 +5,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Tournament.class, Team.class}, version = 15)
+@Database(entities = {Tournament.class, Team.class}, version = 18)
 public abstract class AppDatabase extends RoomDatabase {
 
 	private static AppDatabase INSTANCE;

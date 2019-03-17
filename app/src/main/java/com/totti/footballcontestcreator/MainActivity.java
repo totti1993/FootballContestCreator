@@ -166,9 +166,16 @@ public class MainActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onTournamentCreated(Tournament newTournament) {
+	public void onTournamentCreated(Tournament newTournament, List<Team> selectedTeams) {
 		tournamentViewModel.insert(newTournament);
-		Toast.makeText(this, "Tournament \"" + newTournament.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+
+		// insert ranking table here
+		Toast.makeText(this, "Tournament \"" + newTournament.getName() + "\" created with " + newTournament.getTeams().toString() + " team(s)!", Toast.LENGTH_SHORT).show();
+
+		for(Team team : selectedTeams) {
+			team.setSelected(false);
+			teamViewModel.update(team);
+		}
 	}
 
 	@Override

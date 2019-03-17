@@ -22,12 +22,6 @@ public interface TeamDao {
 	@Delete
 	void delete(Team team);
 
-	@Query("SELECT * FROM team WHERE id = :id")
-	Team findTeamByKey(Integer id);
-
-	@Query("SELECT * FROM team WHERE name = :name")
-	Team findTeamByName(String name);
-
-	@Query("SELECT * FROM team ORDER BY name ASC")
+	@Query("SELECT * FROM team")
 	LiveData<List<Team>> findAllTeams();
 }
