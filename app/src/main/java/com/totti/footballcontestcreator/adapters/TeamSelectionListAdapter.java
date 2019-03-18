@@ -46,7 +46,7 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 			checkBox.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if(team != null) {
+					if(team != null && buttonView.isPressed()) {
 						team.setSelected(isChecked);
 						listener.onCheckBoxClicked(team);
 					}

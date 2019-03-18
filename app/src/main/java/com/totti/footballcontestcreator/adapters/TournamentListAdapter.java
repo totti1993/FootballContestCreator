@@ -70,7 +70,7 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 			favoriteToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if(tournament != null) {
+					if(tournament != null && buttonView.isPressed()) {
 						tournament.setFavorite(isChecked);
 						listener.onTournamentStarClicked(tournament);
 					}

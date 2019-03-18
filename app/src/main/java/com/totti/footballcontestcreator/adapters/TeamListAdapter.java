@@ -2,7 +2,6 @@ package com.totti.footballcontestcreator.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +68,7 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 			favoriteToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-					if(team != null) {
+					if(team != null && buttonView.isPressed()) {
 						team.setFavorite(isChecked);
 						listener.onTeamStarClicked(team);
 					}
