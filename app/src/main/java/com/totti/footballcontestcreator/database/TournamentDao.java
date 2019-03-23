@@ -22,6 +22,6 @@ public interface TournamentDao {
 	@Delete
 	void delete(Tournament tournament);
 
-	@Query("SELECT * FROM tournament")
-	LiveData<List<Tournament>> findAllTournaments();
+	@Query("SELECT * FROM tournament ORDER BY favorite DESC, name ASC")
+	LiveData<List<Tournament>> findAllTournamentsOrdered();
 }

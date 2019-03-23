@@ -23,6 +23,10 @@ public class TeamViewModel extends AndroidViewModel {
 		return appDatabase.teamDao().findAllTeams();
 	}
 
+	public LiveData<List<Team>> getAllTeamsOrdered() {
+		return appDatabase.teamDao().findAllTeamsOrdered();
+	}
+
 	public void insert(final Team team) {
 		new AsyncTask<Void, Void, Void>() {
 			@Override

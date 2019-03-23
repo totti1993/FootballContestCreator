@@ -67,14 +67,14 @@ public class MainActivity extends AppCompatActivity
 		teamListAdapter = new TeamListAdapter(this);
 
 		tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
-		tournamentViewModel.getAllTournaments().observe(this, new Observer<List<Tournament>>() {
+		tournamentViewModel.getAllTournamentsOrdered().observe(this, new Observer<List<Tournament>>() {
 			@Override
 			public void onChanged(@Nullable List<Tournament> tournaments) {
 				tournamentListAdapter.setTournaments(tournaments);
 			}
 		});
 		teamViewModel = ViewModelProviders.of(this).get(TeamViewModel.class);
-		teamViewModel.getAllTeams().observe(this, new Observer<List<Team>>() {
+		teamViewModel.getAllTeamsOrdered().observe(this, new Observer<List<Team>>() {
 			@Override
 			public void onChanged(@Nullable List<Team> teams) {
 				teamListAdapter.setTeams(teams);

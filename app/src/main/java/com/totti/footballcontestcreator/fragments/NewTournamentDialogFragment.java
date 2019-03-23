@@ -79,7 +79,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 							listener.onTournamentCreated(getTournament(), selectedTeams);
 						}
 						else {
-							Toast.makeText(getActivity(), "Tournament not created!", Toast.LENGTH_SHORT).show();
+							Toast.makeText(getContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
 						}
 					}
 				})

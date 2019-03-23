@@ -22,6 +22,9 @@ public interface TeamDao {
 	@Delete
 	void delete(Team team);
 
-	@Query("SELECT * FROM team")
+	@Query("SELECT * FROM team ORDER BY name ASC")
 	LiveData<List<Team>> findAllTeams();
+
+	@Query("SELECT * FROM team ORDER BY favorite DESC, name ASC")
+	LiveData<List<Team>> findAllTeamsOrdered();
 }

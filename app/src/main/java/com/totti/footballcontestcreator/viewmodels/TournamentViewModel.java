@@ -19,8 +19,8 @@ public class TournamentViewModel extends AndroidViewModel {
 		appDatabase = AppDatabase.getDatabase(application);
 	}
 
-	public LiveData<List<Tournament>> getAllTournaments() {
-		return appDatabase.tournamentDao().findAllTournaments();
+	public LiveData<List<Tournament>> getAllTournamentsOrdered() {
+		return appDatabase.tournamentDao().findAllTournamentsOrdered();
 	}
 
 	public void insert(final Tournament tournament) {
