@@ -19,15 +19,15 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 
 	private List<Tournament> tournaments;
 
-	public interface OnTournamentSelectedListener {
+	public interface OnTournamentClickedListener {
 		void onTournamentClicked(Tournament tournament);
 		void onTournamentLongClicked(Tournament tournament);
 		void onTournamentStarClicked(Tournament tournament);
 	}
 
-	private OnTournamentSelectedListener listener;
+	private OnTournamentClickedListener listener;
 
-	public TournamentListAdapter(OnTournamentSelectedListener listener) {
+	public TournamentListAdapter(OnTournamentClickedListener listener) {
 		tournaments = new ArrayList<>();
 		this.listener = listener;
 	}
@@ -43,9 +43,9 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 		TournamentViewHolder(final View tournamentView) {
 			super(tournamentView);
 
-			nameTextView = tournamentView.findViewById(R.id.TournamentNameTextView);
-			typeTextView = tournamentView.findViewById(R.id.TournamentTypeTextView);
-			favoriteToggleButton = tournamentView.findViewById(R.id.TournamentFavoriteToggleButton);
+			nameTextView = tournamentView.findViewById(R.id.tournament_name_textView);
+			typeTextView = tournamentView.findViewById(R.id.tournament_type_textView);
+			favoriteToggleButton = tournamentView.findViewById(R.id.tournament_favorite_toggleButton);
 
 			tournamentView.setOnClickListener(new View.OnClickListener() {
 				@Override

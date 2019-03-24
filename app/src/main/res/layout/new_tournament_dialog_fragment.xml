@@ -18,7 +18,7 @@
             android:text="@string/name" />
 
         <EditText
-            android:id="@+id/TournamentNameEditText"
+            android:id="@+id/tournament_name_editText"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal" />
@@ -30,21 +30,21 @@
             android:text="@string/type" />
 
         <RadioGroup
-            android:id="@+id/TournamentTypeRadioGroup"
+            android:id="@+id/tournament_type_radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
             <RadioButton
-                android:id="@+id/TournamentTypeCRadioButton"
+                android:id="@+id/tournament_typeC_radioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/championship"
                 android:checked="true" />
 
             <RadioButton
-                android:id="@+id/TournamentTypeERadioButton"
+                android:id="@+id/tournament_typeE_radioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/elimination" />
@@ -58,7 +58,7 @@
             android:text="@string/rounds" />
 
         <EditText
-            android:id="@+id/TournamentRoundsEditText"
+            android:id="@+id/tournament_rounds_editText"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -71,7 +71,7 @@
             android:text="@string/teams" />
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/TournamentTeamsRecyclerView"
+            android:id="@+id/tournament_teams_recyclerView"
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_gravity="center_horizontal"
@@ -84,7 +84,7 @@
             android:text="@string/comments" />
 
         <EditText
-            android:id="@+id/TournamentCommentsEditText"
+            android:id="@+id/tournament_comments_editText"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal" />

@@ -7,7 +7,7 @@
     android:padding="@dimen/small_padding">
 
     <ToggleButton
-        android:id="@+id/TournamentFavoriteToggleButton"
+        android:id="@+id/tournament_favorite_toggleButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_gravity="center_vertical"
@@ -23,14 +23,14 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/TournamentNameTextView"
+            android:id="@+id/tournament_name_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="25sp"
             android:textColor="#000000"/>
 
         <TextView
-            android:id="@+id/TournamentTypeTextView"
+            android:id="@+id/tournament_type_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold|italic"

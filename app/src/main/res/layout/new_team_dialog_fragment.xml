@@ -13,7 +13,7 @@
         android:text="@string/name" />
 
     <EditText
-        android:id="@+id/TeamNameEditText"
+        android:id="@+id/team_name_editText"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />
@@ -25,7 +25,7 @@
         android:text="@string/comments" />
 
     <EditText
-        android:id="@+id/TeamCommentsEditText"
+        android:id="@+id/team_comments_editText"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />

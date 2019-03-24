@@ -19,15 +19,15 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 
 	private List<Team> teams;
 
-	public interface OnTeamSelectedListener {
+	public interface OnTeamClickedListener {
 		void onTeamClicked(Team team);
 		void onTeamLongClicked(Team team);
 		void onTeamStarClicked(Team team);
 	}
 
-	private OnTeamSelectedListener listener;
+	private OnTeamClickedListener listener;
 
-	public TeamListAdapter(OnTeamSelectedListener listener) {
+	public TeamListAdapter(OnTeamClickedListener listener) {
 		teams = new ArrayList<>();
 		this.listener = listener;
 	}
@@ -42,8 +42,8 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 		TeamViewHolder(final View teamView) {
 			super(teamView);
 
-			nameTextView = teamView.findViewById(R.id.TeamNameTextView);
-			favoriteToggleButton = teamView.findViewById(R.id.TeamFavoriteToggleButton);
+			nameTextView = teamView.findViewById(R.id.team_name_textView);
+			favoriteToggleButton = teamView.findViewById(R.id.team_favorite_toggleButton);
 
 			teamView.setOnClickListener(new View.OnClickListener() {
 				@Override

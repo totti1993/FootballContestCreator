@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,11 +23,13 @@ import com.totti.footballcontestcreator.adapters.TeamSelectionListAdapter;
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.database.Tournament;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
+import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class NewTournamentDialogFragment extends DialogFragment implements TeamSelectionListAdapter.OnTeamSelectedListener {
+public class NewTournamentDialogFragment extends DialogFragment implements TeamSelectionListAdapter.OnTeamClickedListener {
+
+	public static final String TAG = "NewTournamentDialogFragment";
 
 	private EditText nameEditText;
 	private RadioGroup typeRadioGroup;
@@ -37,27 +38,15 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 	private RecyclerView teamsRecyclerView;
 	private EditText commentsEditText;
 
-	private TeamSelectionListAdapter teamSelectionListAdapter;
-
+	private TournamentViewModel tournamentViewModel;
 	private TeamViewModel teamViewModel;
 
-	public static final String TAG = "NewTournamentDialogFragment";
-
-	public interface NewTournamentDialogListener {
-		void onTournamentCreated(Tournament newTournament, List<Team> selectedTeams);
-	}
-
-	private NewTournamentDialogListener listener;
+	private TeamSelectionListAdapter teamSelectionListAdapter;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		FragmentActivity activity = getActivity();
-		if (activity instanceof NewTournamentDialogListener) {
-			listener = (NewTournamentDialogListener) activity;
-		} else {
-			throw new RuntimeException("Activity must implement the NewTournamentDialogListener interface!");
-		}
+		tournamentViewModel = ViewModelProviders.of(getActivity()).get(TournamentViewModel.class);
 	}
 
 	@NonNull
@@ -70,46 +59,60 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
 						if (isValid()) {
-							List<Team> selectedTeams = new ArrayList<>();
-							for(Team team : teamSelectionListAdapter.getTeams()) {
-								if(team.getSelected()) {
-									selectedTeams.add(team);
-								}
-							}
-							listener.onTournamentCreated(getTournament(), selectedTeams);
+							tournamentViewModel.insert(getTournament());
+							// insert ranking table here
+							Toast.makeText(getContext(), "Tournament \"" + getTournament().getName() + "\" created with " + getTournament().getTeams().toString() + " team(s)!", Toast.LENGTH_SHORT).show();
 						}
 						else {
 							Toast.makeText(getContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
 						}
+
+						for(Team team : teamSelectionListAdapter.getTeams()) {
+							if(team.getSelected()) {
+								team.setSelected(false);
+								teamViewModel.update(team);
+							}
+						}
 					}
 				})
-				.setNegativeButton(R.string.cancel, null)
+				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						for(Team team : teamSelectionListAdapter.getTeams()) {
+							if(team.getSelected()) {
+								team.setSelected(false);
+								teamViewModel.update(team);
+							}
+						}
+					}
+				})
 				.create();
 	}
 
 	private View getContentView() {
-		View contentView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_new_tournament, null);
-		nameEditText = contentView.findViewById(R.id.TournamentNameEditText);
+		View contentView = LayoutInflater.from(getContext()).inflate(R.layout.new_tournament_dialog_fragment, null);
 
-		typeRadioGroup = contentView.findViewById(R.id.TournamentTypeRadioGroup);
-		typeCRadioButton = contentView.findViewById(R.id.TournamentTypeCRadioButton);
-		typeERadioButton = contentView.findViewById(R.id.TournamentTypeERadioButton);
+		nameEditText = contentView.findViewById(R.id.tournament_name_editText);
 
-		roundsEditText = contentView.findViewById(R.id.TournamentRoundsEditText);
+		typeRadioGroup = contentView.findViewById(R.id.tournament_type_radioGroup);
+		typeCRadioButton = contentView.findViewById(R.id.tournament_typeC_radioButton);
+		typeERadioButton = contentView.findViewById(R.id.tournament_typeE_radioButton);
 
-		teamsRecyclerView = contentView.findViewById(R.id.TournamentTeamsRecyclerView);
-		teamsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		roundsEditText = contentView.findViewById(R.id.tournament_rounds_editText);
+
 		teamSelectionListAdapter = new TeamSelectionListAdapter(this);
-		teamViewModel = ViewModelProviders.of(this).get(TeamViewModel.class);
+		teamViewModel = ViewModelProviders.of(getActivity()).get(TeamViewModel.class);
 		teamViewModel.getAllTeams().observe(this, new Observer<List<Team>>() {
 			@Override
 			public void onChanged(@Nullable List<Team> teams) {
 				teamSelectionListAdapter.setTeams(teams);
 			}
 		});
+		teamsRecyclerView = contentView.findViewById(R.id.tournament_teams_recyclerView);
+		teamsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 		teamsRecyclerView.setAdapter(teamSelectionListAdapter);
 
-		commentsEditText = contentView.findViewById(R.id.TournamentCommentsEditText);
+		commentsEditText = contentView.findViewById(R.id.tournament_comments_editText);
 
 		return contentView;
 	}

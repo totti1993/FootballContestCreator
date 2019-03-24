@@ -19,13 +19,13 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 
 	private List<Team> teams;
 
-	public interface OnTeamSelectedListener {
+	public interface OnTeamClickedListener {
 		void onCheckBoxClicked(Team team);
 	}
 
-	private OnTeamSelectedListener listener;
+	private OnTeamClickedListener listener;
 
-	public TeamSelectionListAdapter(OnTeamSelectedListener listener) {
+	public TeamSelectionListAdapter(OnTeamClickedListener listener) {
 		teams = new ArrayList<>();
 		this.listener = listener;
 	}
@@ -40,8 +40,8 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 		TeamViewHolder(final View teamView) {
 			super(teamView);
 
-			nameTextView = teamView.findViewById(R.id.TeamSelectionNameTextView);
-			checkBox = teamView.findViewById(R.id.TeamSelectionCheckBox);
+			nameTextView = teamView.findViewById(R.id.team_selection_name_textView);
+			checkBox = teamView.findViewById(R.id.team_selection_checkBox);
 
 			checkBox.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
 				@Override

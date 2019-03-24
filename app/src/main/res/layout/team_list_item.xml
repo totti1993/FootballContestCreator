@@ -7,7 +7,7 @@
     android:padding="@dimen/small_padding">
 
     <ToggleButton
-        android:id="@+id/TeamFavoriteToggleButton"
+        android:id="@+id/team_favorite_toggleButton"
         android:layout_width="35dp"
         android:layout_height="35dp"
         android:layout_gravity="center_vertical"
@@ -16,7 +16,7 @@
         android:textOn="" />
 
     <TextView
-        android:id="@+id/TeamNameTextView"
+        android:id="@+id/team_name_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
