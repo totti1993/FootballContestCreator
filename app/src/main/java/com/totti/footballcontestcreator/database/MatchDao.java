@@ -11,20 +11,20 @@ import android.arch.persistence.room.Update;
 import java.util.List;
 
 @Dao
-public interface TeamDao {
+public interface MatchDao {
 
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
-	void insert(Team team);
+	void insert(Match match);
 
 	@Update(onConflict = OnConflictStrategy.IGNORE)
-	void update(Team team);
+	void update(Match match);
 
 	@Delete
-	void delete(Team team);
+	void delete(Match match);
 
-	@Query("SELECT * FROM teams ORDER BY name ASC")
-	LiveData<List<Team>> findAllTeams();
+	@Query("SELECT * FROM matches WHERE home_id = :team_id OR visitor_id = :team_id")
+	LiveData<List<Match>> findAllMatchesByTeam(Integer team_id);
 
-	@Query("SELECT * FROM teams ORDER BY favorite DESC, name ASC")
-	LiveData<List<Team>> findAllTeamsOrdered();
+	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id")
+	LiveData<List<Match>> findAllMatchesByTournament(Integer tournament_id);
 }

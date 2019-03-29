@@ -30,7 +30,7 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.tournament_list_fragment, container, false);
+		View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
 
 		final TournamentListAdapter tournamentListAdapter = new TournamentListAdapter(this);
 
@@ -42,11 +42,11 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 			}
 		});
 
-		RecyclerView recyclerView = rootView.findViewById(R.id.tournament_recyclerView);
+		RecyclerView recyclerView = rootView.findViewById(R.id.item_recyclerView);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 		recyclerView.setAdapter(tournamentListAdapter);
 
-		FloatingActionButton fab = rootView.findViewById(R.id.new_tournament_fab);
+		FloatingActionButton fab = rootView.findViewById(R.id.new_item_fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {

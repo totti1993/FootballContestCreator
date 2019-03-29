@@ -6,7 +6,7 @@ import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
-@Entity(tableName = "tournament", indices = {@Index(value = "name", unique = true)})
+@Entity(tableName = "tournaments", indices = {@Index(value = "name", unique = true)})
 public class Tournament {
 
 	@ColumnInfo(name = "id")

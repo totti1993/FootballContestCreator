@@ -5,13 +5,15 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Tournament.class, Team.class}, version = 18)
+@Database(entities = {Match.class, Ranking.class, Team.class, Tournament.class}, version = 20)
 public abstract class AppDatabase extends RoomDatabase {
 
 	private static AppDatabase INSTANCE;
 
-	public abstract TournamentDao tournamentDao();
+	public abstract MatchDao matchDao();
+	public abstract RankingDao rankingDao();
 	public abstract TeamDao teamDao();
+	public abstract TournamentDao tournamentDao();
 
 	public static AppDatabase getDatabase(Context context) {
 		if(INSTANCE == null) {

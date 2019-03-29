@@ -60,7 +60,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 					public void onClick(DialogInterface dialogInterface, int i) {
 						if (isValid()) {
 							tournamentViewModel.insert(getTournament());
-							// insert ranking table here
+							// insert into ranking and match table here
 							Toast.makeText(getContext(), "Tournament \"" + getTournament().getName() + "\" created with " + getTournament().getTeams().toString() + " team(s)!", Toast.LENGTH_SHORT).show();
 						}
 						else {
@@ -118,7 +118,30 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 	}
 
 	private boolean isValid() {
-		return nameEditText.getText().length() > 0;
+		if(!(nameEditText.getText().length() > 0)) {
+			return false;
+		}
+
+		if(!typeCRadioButton.isChecked() && !typeERadioButton.isChecked()) {
+			return false;
+		}
+
+		if(!(roundsEditText.getText().length() > 0) || !(Integer.parseInt(roundsEditText.getText().toString()) > 0)) {
+			return false;
+		}
+
+		boolean noSelectedTeams = true;
+		for(Team team : teamSelectionListAdapter.getTeams()) {
+			if(team.getSelected()) {
+				noSelectedTeams = false;
+				break;
+			}
+		}
+		if(noSelectedTeams) {
+			return false;
+		}
+
+		return true;
 	}
 
 	private Tournament getTournament() {

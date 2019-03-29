@@ -30,7 +30,7 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.team_list_fragment, container, false);
+		View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
 
 		final TeamListAdapter teamListAdapter = new TeamListAdapter(this);
 
@@ -42,11 +42,11 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 			}
 		});
 
-		RecyclerView recyclerView = rootView.findViewById(R.id.team_recyclerView);
+		RecyclerView recyclerView = rootView.findViewById(R.id.item_recyclerView);
 		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 		recyclerView.setAdapter(teamListAdapter);
 
-		FloatingActionButton fab = rootView.findViewById(R.id.new_team_fab);
+		FloatingActionButton fab = rootView.findViewById(R.id.new_item_fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
