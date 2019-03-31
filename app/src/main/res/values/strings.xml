@@ -24,4 +24,8 @@
     <string name="type">Type</string>
     <string name="rounds">Rounds</string>
 
+    <string name="stats">Stats</string>
+    <string name="results">Results</string>
+    <string name="matches">Matches</string>
+
 </resources>

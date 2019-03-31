@@ -3,6 +3,7 @@ package com.totti.footballcontestcreator.fragments;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.totti.footballcontestcreator.R;
+import com.totti.footballcontestcreator.TeamActivity;
 import com.totti.footballcontestcreator.adapters.TeamListAdapter;
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
@@ -59,7 +61,9 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 
 	@Override
 	public void onTeamClicked(Team team) {
-		Toast.makeText(getContext(), "Team \"" + team.getName() + "\" clicked!", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(getActivity(), TeamActivity.class);
+		intent.putExtra("teamName", team.getName());
+		startActivity(intent);
 	}
 
 	@Override
