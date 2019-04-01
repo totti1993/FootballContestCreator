@@ -3,6 +3,7 @@ package com.totti.footballcontestcreator.fragments;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.totti.footballcontestcreator.R;
+import com.totti.footballcontestcreator.TournamentActivity;
 import com.totti.footballcontestcreator.adapters.TournamentListAdapter;
 import com.totti.footballcontestcreator.database.Tournament;
 import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
@@ -59,7 +61,9 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 
 	@Override
 	public void onTournamentClicked(Tournament tournament) {
-		Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" clicked!", Toast.LENGTH_SHORT).show();
+		Intent intent = new Intent(getActivity(), TournamentActivity.class);
+		intent.putExtra("tournamentName", tournament.getName());
+		startActivity(intent);
 	}
 
 	@Override

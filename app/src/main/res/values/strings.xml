@@ -18,14 +18,15 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="name">Name</string>
-    <string name="comments">Comments</string>
     <string name="championship">Championship</string>
     <string name="elimination">Elimination</string>
     <string name="type">Type</string>
     <string name="rounds">Rounds</string>
 
     <string name="stats">Stats</string>
+    <string name="table">Table</string>
     <string name="results">Results</string>
     <string name="matches">Matches</string>
+    <string name="comments">Comments</string>
 
 </resources>

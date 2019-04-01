@@ -10,7 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class TeamActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class TournamentActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -24,11 +24,11 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		Intent intent = getIntent();
-		String teamName = intent.getStringExtra("teamName");
-		this.setTitle(teamName);
+		String tournamentName = intent.getStringExtra("tournamentName");
+		this.setTitle(tournamentName);
 
 		BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
-		navigationView.inflateMenu(R.menu.team_navigation_bar);
+		navigationView.inflateMenu(R.menu.tournament_navigation_bar);
 		navigationView.setOnNavigationItemSelectedListener(this);
 	}
 
@@ -50,13 +50,13 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		switch(item.getItemId()) {
-			case R.id.team_nav_statistics:
+			case R.id.tournament_nav_table:
 				break;
-			case R.id.team_nav_results:
+			case R.id.tournament_nav_results:
 				break;
-			case R.id.team_nav_matches:
+			case R.id.tournament_nav_matches:
 				break;
-			case R.id.team_nav_comments:
+			case R.id.tournament_nav_comments:
 				break;
 			default:
 				break;

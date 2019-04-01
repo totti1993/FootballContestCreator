@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/tournament_nav_table"
+        android:icon="@drawable/ic_menu_table"
+        android:title="@string/table" />
+    <item
+        android:id="@+id/tournament_nav_results"
+        android:icon="@drawable/ic_menu_results"
+        android:title="@string/results" />
+    <item
+        android:id="@+id/tournament_nav_matches"
+        android:icon="@drawable/ic_menu_matches"
+        android:title="@string/matches" />
+    <item
+        android:id="@+id/tournament_nav_comments"
+        android:icon="@drawable/ic_menu_comments"
+        android:title="@string/comments" />
+
+</menu>
