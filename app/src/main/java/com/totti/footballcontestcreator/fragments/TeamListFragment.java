@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -72,8 +73,18 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						teamViewModel.delete(team);
-						Toast.makeText(getContext(), "Team \"" + team.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+						new AsyncTask<Void, Void, Void>() {
+							@Override
+							protected Void doInBackground(Void... voids) {
+								teamViewModel.delete(team);
+								return null;
+							}
+
+							@Override
+							protected void onPostExecute(Void aVoid) {
+								Toast.makeText(getContext(), "Team \"" + team.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+							}
+						}.execute();
 					}
 				})
 				.setNegativeButton("No", null)
@@ -81,13 +92,23 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 	}
 
 	@Override
-	public void onTeamStarClicked(Team team) {
-		teamViewModel.update(team);
-		if(team.getFavorite()) {
-			Toast.makeText(getContext(), "Team \"" + team.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
-		}
-		else {
-			Toast.makeText(getContext(), "Team \"" + team.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
-		}
+	public void onTeamStarClicked(final Team team) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... voids) {
+				teamViewModel.update(team);
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void aVoid) {
+				if(team.getFavorite()) {
+					Toast.makeText(getContext(), "Team \"" + team.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+				}
+				else {
+					Toast.makeText(getContext(), "Team \"" + team.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+				}
+			}
+		}.execute();
 	}
 }

@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -72,8 +73,18 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						tournamentViewModel.delete(tournament);
-						Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+						new AsyncTask<Void, Void, Void>() {
+							@Override
+							protected Void doInBackground(Void... voids) {
+								tournamentViewModel.delete(tournament);
+								return null;
+							}
+
+							@Override
+							protected void onPostExecute(Void aVoid) {
+								Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+							}
+						}.execute();
 					}
 				})
 				.setNegativeButton("No", null)
@@ -81,13 +92,23 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 	}
 
 	@Override
-	public void onTournamentStarClicked(Tournament tournament) {
-		tournamentViewModel.update(tournament);
-		if(tournament.getFavorite()) {
-			Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
-		}
-		else {
-			Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
-		}
+	public void onTournamentStarClicked(final Tournament tournament) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... voids) {
+				tournamentViewModel.update(tournament);
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void aVoid) {
+				if(tournament.getFavorite()) {
+					Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+				}
+				else {
+					Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+				}
+			}
+		}.execute();
 	}
 }

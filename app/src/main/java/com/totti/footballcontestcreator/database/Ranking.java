@@ -4,7 +4,6 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
 
 @Entity(tableName = "rankings",
 		foreignKeys = {@ForeignKey(entity = Tournament.class, parentColumns = "id", childColumns = "tournament_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
@@ -13,48 +12,42 @@ public class Ranking {
 
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
-	private Integer id;
+	private long id;
 
 	@ColumnInfo(name = "tournament_id")
-	@NonNull
-	private Integer tournament_id;
+	private long tournament_id;
 
 	@ColumnInfo(name = "team_id")
-	@NonNull
-	private Integer team_id;
+	private long team_id;
 
 	@ColumnInfo(name = "place")
-	@NonNull
-	private Integer place;
+	private int place;
 
 	@ColumnInfo(name = "points")
-	@NonNull
-	private Integer points;
+	private int points;
 
 	@ColumnInfo(name = "wins")
-	@NonNull
-	private Integer wins;
+	private int wins;
 
 	@ColumnInfo(name = "draws")
-	@NonNull
-	private Integer draws;
+	private int draws;
 
 	@ColumnInfo(name = "losses")
-	@NonNull
-	private Integer losses;
+	private int losses;
 
 	@ColumnInfo(name = "goals_for")
-	@NonNull
-	private Integer goals_for;
+	private int goals_for;
 
 	@ColumnInfo(name = "goals_against")
-	@NonNull
-	private Integer goals_against;
+	private int goals_against;
 
 	@ColumnInfo(name = "comments")
 	private String comments;
 
-	public Ranking(@NonNull Integer tournament_id, @NonNull Integer team_id, @NonNull Integer place, String comments) {
+	@ColumnInfo(name = "active")
+	private boolean active;
+
+	public Ranking(long tournament_id, long team_id, int place) {
 		this.tournament_id = tournament_id;
 		this.team_id = team_id;
 		this.place = place;
@@ -64,95 +57,86 @@ public class Ranking {
 		this.losses = 0;
 		this.goals_for = 0;
 		this.goals_against = 0;
-		this.comments = comments;
+		this.active = true;
 	}
 
-	public Integer getId() {
+	public long getId() {
 		return this.id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	@NonNull
-	public Integer getTournament_id() {
+	public long getTournament_id() {
 		return this.tournament_id;
 	}
 
-	public void setTournament_id(@NonNull Integer tournament_id) {
+	public void setTournament_id(long tournament_id) {
 		this.tournament_id = tournament_id;
 	}
 
-	@NonNull
-	public Integer getTeam_id() {
+	public long getTeam_id() {
 		return this.team_id;
 	}
 
-	public void setTeam_id(@NonNull Integer team_id) {
+	public void setTeam_id(long team_id) {
 		this.team_id = team_id;
 	}
 
-	@NonNull
-	public Integer getPlace() {
+	public int getPlace() {
 		return this.place;
 	}
 
-	public void setPlace(@NonNull Integer place) {
+	public void setPlace(int place) {
 		this.place = place;
 	}
 
-	@NonNull
-	public Integer getPoints() {
+	public int getPoints() {
 		return this.points;
 	}
 
-	public void setPoints(@NonNull Integer points) {
+	public void setPoints(int points) {
 		this.points = points;
 	}
 
-	@NonNull
-	public Integer getWins() {
+	public int getWins() {
 		return this.wins;
 	}
 
-	public void setWins(@NonNull Integer wins) {
+	public void setWins(int wins) {
 		this.wins = wins;
 	}
 
-	@NonNull
-	public Integer getDraws() {
+	public int getDraws() {
 		return this.draws;
 	}
 
-	public void setDraws(@NonNull Integer draws) {
+	public void setDraws(int draws) {
 		this.draws = draws;
 	}
 
-	@NonNull
-	public Integer getLosses() {
+	public int getLosses() {
 		return this.losses;
 	}
 
-	public void setLosses(@NonNull Integer losses) {
+	public void setLosses(int losses) {
 		this.losses = losses;
 	}
 
-	@NonNull
-	public Integer getGoals_for() {
+	public int getGoals_for() {
 		return this.goals_for;
 	}
 
-	public void setGoals_for(@NonNull Integer goals_for) {
+	public void setGoals_for(int goals_for) {
 		this.goals_for = goals_for;
 	}
 
-	@NonNull
-	public Integer getGoals_against() {
+	public int getGoals_against() {
 		return this.goals_against;
 	}
 
-	public void setGoals_against(@NonNull Integer goals_against) {
+	public void setGoals_against(int goals_against) {
 		this.goals_against = goals_against;
 	}
 
@@ -162,5 +146,13 @@ public class Ranking {
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+
+	public boolean getActive() {
+		return this.active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

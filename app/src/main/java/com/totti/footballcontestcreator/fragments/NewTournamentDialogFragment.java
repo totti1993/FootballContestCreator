@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,12 +21,19 @@ import android.widget.Toast;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.adapters.TeamSelectionListAdapter;
+import com.totti.footballcontestcreator.database.Match;
+import com.totti.footballcontestcreator.database.Ranking;
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.database.Tournament;
+import com.totti.footballcontestcreator.viewmodels.MatchViewModel;
+import com.totti.footballcontestcreator.viewmodels.RankingViewModel;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class NewTournamentDialogFragment extends DialogFragment implements TeamSelectionListAdapter.OnTeamClickedListener {
 
@@ -38,14 +46,19 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 	private RecyclerView teamsRecyclerView;
 	private EditText commentsEditText;
 
-	private TournamentViewModel tournamentViewModel;
+	private MatchViewModel matchViewModel;
+	private RankingViewModel rankingViewModel;
 	private TeamViewModel teamViewModel;
+	private TournamentViewModel tournamentViewModel;
 
 	private TeamSelectionListAdapter teamSelectionListAdapter;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		matchViewModel = ViewModelProviders.of(getActivity()).get(MatchViewModel.class);
+		rankingViewModel = ViewModelProviders.of(getActivity()).get(RankingViewModel.class);
+		teamViewModel = ViewModelProviders.of(getActivity()).get(TeamViewModel.class);
 		tournamentViewModel = ViewModelProviders.of(getActivity()).get(TournamentViewModel.class);
 	}
 
@@ -58,34 +71,28 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
-						if (isValid()) {
-							tournamentViewModel.insert(getTournament());
-							// insert into ranking and match table here
-							Toast.makeText(getContext(), "Tournament \"" + getTournament().getName() + "\" created with " + getTournament().getTeams().toString() + " team(s)!", Toast.LENGTH_SHORT).show();
+						if(isValid()) {
+							final Tournament tournament = getTournament();
+
+							new AsyncTask<Void, Void, Void>() {
+								@Override
+								protected Void doInBackground(Void... voids) {
+									tournament.setId(tournamentViewModel.insert(tournament));
+									return null;
+								}
+
+								@Override
+								protected void onPostExecute(Void aVoid) {
+									createMatchesAndRankings(tournament);
+								}
+							}.execute();
 						}
 						else {
 							Toast.makeText(getContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
 						}
-
-						for(Team team : teamSelectionListAdapter.getTeams()) {
-							if(team.getSelected()) {
-								team.setSelected(false);
-								teamViewModel.update(team);
-							}
-						}
 					}
 				})
-				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						for(Team team : teamSelectionListAdapter.getTeams()) {
-							if(team.getSelected()) {
-								team.setSelected(false);
-								teamViewModel.update(team);
-							}
-						}
-					}
-				})
+				.setNegativeButton(R.string.cancel, null)
 				.create();
 	}
 
@@ -101,7 +108,6 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 		roundsEditText = contentView.findViewById(R.id.tournament_rounds_editText);
 
 		teamSelectionListAdapter = new TeamSelectionListAdapter(this);
-		teamViewModel = ViewModelProviders.of(getActivity()).get(TeamViewModel.class);
 		teamViewModel.getAllTeams().observe(this, new Observer<List<Team>>() {
 			@Override
 			public void onChanged(@Nullable List<Team> teams) {
@@ -130,14 +136,16 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 			return false;
 		}
 
-		boolean noSelectedTeams = true;
+		int selectedTeams = 0;
 		for(Team team : teamSelectionListAdapter.getTeams()) {
 			if(team.getSelected()) {
-				noSelectedTeams = false;
-				break;
+				selectedTeams++;
+				if(selectedTeams >= 2) {
+					break;
+				}
 			}
 		}
-		if(noSelectedTeams) {
+		if(!(selectedTeams >= 2)) {
 			return false;
 		}
 
@@ -155,9 +163,9 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 			type = "Elimination";
 		}
 
-		Integer rounds = Integer.parseInt(roundsEditText.getText().toString());
+		int rounds = Integer.parseInt(roundsEditText.getText().toString());
 
-		Integer teams = 0;
+		int teams = 0;
 		for(Team team : teamSelectionListAdapter.getTeams()) {
 			if(team.getSelected()) {
 				teams++;
@@ -169,8 +177,226 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 		return new Tournament(name, type, rounds, teams, comments);
 	}
 
+	private void createMatchesAndRankings(final Tournament tournament) {
+		ArrayList<Team> teams = new ArrayList<>();
+		for(final Team team : teamSelectionListAdapter.getTeams()) {
+			if(team.getSelected()) {
+				teams.add(team);
+				new AsyncTask<ArrayList<Team>, Void, Void>() {
+					@Override
+					protected Void doInBackground(ArrayList<Team>... teams) {
+						rankingViewModel.insert(new Ranking(tournament.getId(), team.getId(), teams[0].indexOf(team) + 1));
+						return null;
+					}
+				}.execute(teams);
+			}
+		}
+
+		ArrayList<ArrayList<Team>> pairs = createPairs(tournament.getType());
+
+		if(tournament.getType().equals("Championship")) {
+			int numberOfMatchesPerDay = (tournament.getTeams() % 2 == 0) ? (tournament.getTeams() / 2) : ((tournament.getTeams() - 1) / 2);
+			int numberOfMatchDays = (tournament.getTeams() % 2 == 0) ? (tournament.getTeams() - 1) : tournament.getTeams();
+
+			ArrayList<ArrayList<ArrayList<Team>>> matchDaysPerRound = new ArrayList<>();
+			for(int j = 0; j < numberOfMatchDays; j++) {
+				ArrayList<ArrayList<Team>> matchDay = createScheduleForChampionship(pairs, numberOfMatchesPerDay, ((tournament.getTeams() % 2 != 0) ? teams.get(j) : null));
+				matchDaysPerRound.add(matchDay);
+			}
+
+			int day = 1;
+			for(int j = 1; j <= tournament.getRounds(); j++) {
+				for(ArrayList<ArrayList<Team>> matchDay : matchDaysPerRound) {
+					for(final ArrayList<Team> match : matchDay) {
+						if(j % 2 != 0) {
+							new AsyncTask<Integer, Void, Void>() {
+								@Override
+								protected Void doInBackground(Integer... day) {
+									matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(0).getId(), match.get(1).getId()));
+									return null;
+								}
+							}.execute(day);
+						}
+						else {
+							new AsyncTask<Integer, Void, Void>() {
+								@Override
+								protected Void doInBackground(Integer... day) {
+									matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(1).getId(), match.get(0).getId()));
+									return null;
+								}
+							}.execute(day);
+						}
+					}
+					day++;
+				}
+			}
+		}
+		else if(tournament.getType().equals("Elimination")) {
+			for(int j = 1; j <= tournament.getRounds(); j++) {
+				for(final ArrayList<Team> match : pairs) {
+					if(j % 2 != 0) {
+						new AsyncTask<Integer, Void, Void>() {
+							@Override
+							protected Void doInBackground(Integer... day) {
+								matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(0).getId(), match.get(1).getId()));
+								return null;
+							}
+						}.execute(j);
+					}
+					else {
+						new AsyncTask<Integer, Void, Void>() {
+							@Override
+							protected Void doInBackground(Integer... day) {
+								matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(1).getId(), match.get(0).getId()));
+								return null;
+							}
+						}.execute(j);
+					}
+				}
+			}
+		}
+
+		Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" created with " + tournament.getTeams() + " teams!", Toast.LENGTH_SHORT).show();
+
+		for(final Team team : teamSelectionListAdapter.getTeams()) {
+			if(team.getSelected()) {
+				team.setSelected(false);
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						teamViewModel.update(team);
+						return null;
+					}
+				}.execute();
+			}
+		}
+	}
+
+	private ArrayList<ArrayList<Team>> createPairs(String tournamentType) {
+		ArrayList<ArrayList<Team>> pairs = new ArrayList<>();
+
+		// Collection of teams participating in the tournament
+		ArrayList<Team> teams = new ArrayList<>();
+		for(Team team : teamSelectionListAdapter.getTeams()) {
+			if(team.getSelected()) {
+				teams.add(team);
+			}
+		}
+
+		if(tournamentType.equals("Championship")) {
+
+			// Match generator for a round
+			for(int i = 0; i < teams.size() - 1; i++) {
+				for(int j = i + 1; j < teams.size(); j++) {
+					ArrayList<Team> newPair = new ArrayList<>();
+					newPair.add(teams.get(i));
+					newPair.add(teams.get(j));
+					Collections.shuffle(newPair);
+					pairs.add(newPair);
+				}
+			}
+		}
+		else if(tournamentType.equals("Elimination")) {
+
+			// The highest power of 2 that is less than or equal to the number of teams
+			int highestPower = 1;
+			while(highestPower <= teams.size()) {
+				highestPower *= 2;
+			}
+			highestPower /= 2;
+
+			// The number of teams who must play a qualifier round
+			int numberOfQualifiables = 2 * (teams.size() - highestPower);
+
+			// The number of matches in the first round of the tournament based on the existence of the qualifier round
+			int numberOfMatches = (numberOfQualifiables > 0) ? (numberOfQualifiables / 2) : (teams.size() / 2);
+
+			// Match generator for a round
+			Random rand = new Random();
+			for(int i = 0; i < numberOfMatches; i++) {
+				Team firstTeam = teams.get(rand.nextInt(teams.size()));
+				teams.remove(firstTeam);
+				Team secondTeam = teams.get(rand.nextInt(teams.size()));
+				teams.remove(secondTeam);
+
+				ArrayList<Team> newPair = new ArrayList<>();
+				newPair.add(firstTeam);
+				newPair.add(secondTeam);
+				Collections.shuffle(newPair);
+				pairs.add(newPair);
+			}
+		}
+
+		Collections.shuffle(pairs);
+		return pairs;
+	}
+
+	private ArrayList<ArrayList<Team>> createScheduleForChampionship(ArrayList<ArrayList<Team>> pairs, int numberOfMatchesPerDay, Team teamToIgnore) {
+		ArrayList<ArrayList<Team>> matchDay = new ArrayList<>();
+
+		ArrayList<ArrayList<ArrayList<Team>>> notUsed = new ArrayList<>();
+		for(int i = 0; i < numberOfMatchesPerDay; i++) {
+			ArrayList<ArrayList<Team>> item = new ArrayList<>();
+			notUsed.add(item);
+		}
+
+		while(matchDay.size() != numberOfMatchesPerDay) {
+			boolean successfullyIn = false;
+
+			for(ArrayList<Team> pair: pairs) {
+				boolean notAllowedPair = false;
+
+				if(!notUsed.get(matchDay.size()).isEmpty()) {
+					for(ArrayList<Team> notUsedPair : notUsed.get(matchDay.size())) {
+						if(pair.get(0).getName().equals(notUsedPair.get(0).getName()) &&
+								pair.get(1).getName().equals(notUsedPair.get(1).getName())) {
+							notAllowedPair = true;
+							break;
+						}
+					}
+				}
+				if(!notAllowedPair) {
+					if((teamToIgnore != null) && (pair.get(0).getName().equals(teamToIgnore.getName()) || pair.get(1).getName().equals(teamToIgnore.getName()))) {
+						notAllowedPair = true;
+					}
+					else {
+						for(ArrayList<Team> matchDayPair: matchDay) {
+							if(pair.get(0).getName().equals(matchDayPair.get(0).getName()) ||
+									pair.get(0).getName().equals(matchDayPair.get(1).getName()) ||
+									pair.get(1).getName().equals(matchDayPair.get(0).getName()) ||
+									pair.get(1).getName().equals(matchDayPair.get(1).getName())) {
+								notAllowedPair = true;
+								break;
+							}
+						}
+					}
+				}
+				if(!notAllowedPair) {
+					matchDay.add(pair);
+					pairs.remove(pair);
+					successfullyIn = true;
+					break;
+				}
+			}
+			if(!successfullyIn) {
+				notUsed.get(matchDay.size() - 1).add(matchDay.get(matchDay.size() - 1));
+				notUsed.get(matchDay.size()).clear();
+				pairs.add(matchDay.get(matchDay.size() - 1));
+				matchDay.remove(matchDay.size() - 1);
+			}
+		}
+
+		return matchDay;
+	}
+
 	@Override
-	public void onCheckBoxClicked(Team team) {
-		teamViewModel.update(team);
+	public void onCheckBoxClicked(final Team team) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... voids) {
+				teamViewModel.update(team);
+				return null;
+			}
+		}.execute();
 	}
 }

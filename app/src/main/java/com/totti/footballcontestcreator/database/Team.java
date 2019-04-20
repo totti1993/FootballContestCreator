@@ -11,38 +11,32 @@ public class Team {
 
 	@ColumnInfo(name = "id")
 	@PrimaryKey(autoGenerate = true)
-	private Integer id;
+	private long id;
 
 	@ColumnInfo(name = "name")
 	@NonNull
 	private String name;
 
 	@ColumnInfo(name = "trophies")
-	@NonNull
-	private Integer trophies;
+	private int trophies;
 
 	@ColumnInfo(name = "all_time_wins")
-	@NonNull
-	private Integer all_time_wins;
+	private int all_time_wins;
 
 	@ColumnInfo(name = "all_time_draws")
-	@NonNull
-	private Integer all_time_draws;
+	private int all_time_draws;
 
 	@ColumnInfo(name = "all_time_losses")
-	@NonNull
-	private Integer all_time_losses;
+	private int all_time_losses;
 
 	@ColumnInfo(name = "comments")
 	private String comments;
 
 	@ColumnInfo(name = "favorite")
-	@NonNull
-	private Boolean favorite;
+	private boolean favorite;
 
 	@ColumnInfo(name = "selected")
-	@NonNull
-	private Boolean selected;
+	private boolean selected;
 
 	public Team(@NonNull String name, String comments) {
 		this.name = name;
@@ -55,11 +49,11 @@ public class Team {
 		this.selected = false;
 	}
 
-	public Integer getId() {
+	public long getId() {
 		return this.id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -72,39 +66,35 @@ public class Team {
 		this.name = name;
 	}
 
-	@NonNull
-	public Integer getTrophies() {
+	public int getTrophies() {
 		return this.trophies;
 	}
 
-	public void setTrophies(@NonNull Integer trophies) {
+	public void setTrophies(int trophies) {
 		this.trophies = trophies;
 	}
 
-	@NonNull
-	public Integer getAll_time_wins() {
+	public int getAll_time_wins() {
 		return this.all_time_wins;
 	}
 
-	public void setAll_time_wins(@NonNull Integer all_time_wins) {
+	public void setAll_time_wins(int all_time_wins) {
 		this.all_time_wins = all_time_wins;
 	}
 
-	@NonNull
-	public Integer getAll_time_draws() {
+	public int getAll_time_draws() {
 		return this.all_time_draws;
 	}
 
-	public void setAll_time_draws(@NonNull Integer all_time_draws) {
+	public void setAll_time_draws(int all_time_draws) {
 		this.all_time_draws = all_time_draws;
 	}
 
-	@NonNull
-	public Integer getAll_time_losses() {
+	public int getAll_time_losses() {
 		return this.all_time_losses;
 	}
 
-	public void setAll_time_losses(@NonNull Integer all_time_losses) {
+	public void setAll_time_losses(int all_time_losses) {
 		this.all_time_losses = all_time_losses;
 	}
 
@@ -116,21 +106,19 @@ public class Team {
 		this.comments = comments;
 	}
 
-	@NonNull
-	public Boolean getFavorite() {
+	public boolean getFavorite() {
 		return this.favorite;
 	}
 
-	public void setFavorite(@NonNull Boolean favorite) {
+	public void setFavorite(boolean favorite) {
 		this.favorite = favorite;
 	}
 
-	@NonNull
-	public Boolean getSelected() {
+	public boolean getSelected() {
 		return this.selected;
 	}
 
-	public void setSelected(@NonNull Boolean selected) {
+	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
 }

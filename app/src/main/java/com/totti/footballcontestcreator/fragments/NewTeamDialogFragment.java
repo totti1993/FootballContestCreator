@@ -3,6 +3,7 @@ package com.totti.footballcontestcreator.fragments;
 import android.app.Dialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -42,8 +43,20 @@ public class NewTeamDialogFragment extends DialogFragment {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
 						if (isValid()) {
-							teamViewModel.insert(getTeam());
-							Toast.makeText(getContext(), "Team \"" + getTeam().getName() + "\" created!", Toast.LENGTH_SHORT).show();
+							final Team team = getTeam();
+
+							new AsyncTask<Void, Void, Void>() {
+								@Override
+								protected Void doInBackground(Void... voids) {
+									teamViewModel.insert(team);
+									return null;
+								}
+
+								@Override
+								protected void onPostExecute(Void aVoid) {
+									Toast.makeText(getContext(), "Team \"" + team.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+								}
+							}.execute();
 						}
 						else {
 							Toast.makeText(getContext(), "Team not created!", Toast.LENGTH_SHORT).show();

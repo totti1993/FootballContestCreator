@@ -14,7 +14,7 @@ import java.util.List;
 public interface TournamentDao {
 
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
-	void insert(Tournament tournament);
+	long insert(Tournament tournament);
 
 	@Update(onConflict = OnConflictStrategy.IGNORE)
 	void update(Tournament tournament);
