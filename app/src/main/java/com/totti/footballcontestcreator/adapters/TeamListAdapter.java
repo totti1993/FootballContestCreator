@@ -87,7 +87,9 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 	@Override
 	public void onBindViewHolder(@NonNull TeamViewHolder holder, int position) {
 		Team team = teams.get(position);
+
 		holder.nameTextView.setText(team.getName());
+
 		if(team.getFavorite()) {
 			holder.favoriteToggleButton.setChecked(true);
 			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_green);
@@ -96,6 +98,7 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 			holder.favoriteToggleButton.setChecked(false);
 			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_border_grey);
 		}
+
 		holder.team = team;
 	}
 

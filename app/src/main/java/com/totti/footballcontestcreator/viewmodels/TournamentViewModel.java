@@ -35,4 +35,8 @@ public class TournamentViewModel extends AndroidViewModel {
 	public LiveData<List<Tournament>> getAllTournamentsOrdered() {
 		return tournamentsOrdered;
 	}
+
+	public Tournament getTournamentById(long id) {
+		return appDatabase.tournamentDao().findTournamentById(id);
+	}
 }

@@ -89,8 +89,11 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 	@Override
 	public void onBindViewHolder(@NonNull TournamentViewHolder holder, int position) {
 		Tournament tournament = tournaments.get(position);
+
 		holder.nameTextView.setText(tournament.getName());
+
 		holder.typeTextView.setText(tournament.getType());
+
 		if(tournament.getFavorite()) {
 			holder.favoriteToggleButton.setChecked(true);
 			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_green);
@@ -99,6 +102,7 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 			holder.favoriteToggleButton.setChecked(false);
 			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_border_grey);
 		}
+
 		holder.tournament = tournament;
 	}
 

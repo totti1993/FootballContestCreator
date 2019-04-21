@@ -24,4 +24,7 @@ public interface TournamentDao {
 
 	@Query("SELECT * FROM tournaments ORDER BY favorite DESC, name ASC")
 	LiveData<List<Tournament>> findAllTournamentsOrdered();
+
+	@Query("SELECT * FROM tournaments WHERE id = :id LIMIT 1")
+	Tournament findTournamentById(long id);
 }

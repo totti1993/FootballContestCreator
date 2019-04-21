@@ -29,4 +29,6 @@
     <string name="matches">Matches</string>
     <string name="comments">Comments</string>
 
+    <string name="divider">-</string>
+
 </resources>

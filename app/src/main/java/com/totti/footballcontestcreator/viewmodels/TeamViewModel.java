@@ -41,4 +41,8 @@ public class TeamViewModel extends AndroidViewModel {
 	public LiveData<List<Team>> getAllTeamsOrdered() {
 		return teamsOrdered;
 	}
+
+	public Team getTeamById(long id) {
+		return appDatabase.teamDao().findTeamById(id);
+	}
 }

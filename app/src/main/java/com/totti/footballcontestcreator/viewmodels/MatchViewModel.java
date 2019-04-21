@@ -30,11 +30,11 @@ public class MatchViewModel extends AndroidViewModel {
 		appDatabase.matchDao().delete(match);
 	}
 
-	public LiveData<List<Match>> getAllMatchesByTeam(int team_id) {
-		return appDatabase.matchDao().findAllMatchesByTeam(team_id);
+	public LiveData<List<Match>> getAllMatchesByTeamAndFinalScore(long team_id, boolean final_score) {
+		return appDatabase.matchDao().findAllMatchesByTeamAndFinalScore(team_id, final_score);
 	}
 
-	public LiveData<List<Match>> getAllMatchesByTournament(int tournament_id) {
-		return appDatabase.matchDao().findAllMatchesByTournament(tournament_id);
+	public LiveData<List<Match>> getAllMatchesByTournamentAndFinalScore(long tournament_id, boolean final_score) {
+		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScore(tournament_id, final_score);
 	}
 }

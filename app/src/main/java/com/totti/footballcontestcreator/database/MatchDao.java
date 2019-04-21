@@ -22,9 +22,9 @@ public interface MatchDao {
 	@Delete
 	void delete(Match match);
 
-	@Query("SELECT * FROM matches WHERE home_id = :team_id OR visitor_id = :team_id")
-	LiveData<List<Match>> findAllMatchesByTeam(int team_id);
+	@Query("SELECT * FROM matches WHERE (home_id = :team_id OR visitor_id = :team_id) AND final_score = :final_score")
+	LiveData<List<Match>> findAllMatchesByTeamAndFinalScore(long team_id, boolean final_score);
 
-	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id")
-	LiveData<List<Match>> findAllMatchesByTournament(int tournament_id);
+	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND final_score = :final_score")
+	LiveData<List<Match>> findAllMatchesByTournamentAndFinalScore(long tournament_id, boolean final_score);
 }

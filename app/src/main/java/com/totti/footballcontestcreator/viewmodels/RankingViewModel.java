@@ -30,11 +30,11 @@ public class RankingViewModel extends AndroidViewModel {
 		appDatabase.rankingDao().delete(ranking);
 	}
 
-	public LiveData<List<Ranking>> getAllRankingsByTeam(int team_id) {
+	public LiveData<List<Ranking>> getAllRankingsByTeam(long team_id) {
 		return appDatabase.rankingDao().findAllRankingsByTeam(team_id);
 	}
 
-	public LiveData<List<Ranking>> getAllRankingsByTournament(int tournament_id) {
+	public LiveData<List<Ranking>> getAllRankingsByTournament(long tournament_id) {
 		return appDatabase.rankingDao().findAllRankingsByTournament(tournament_id);
 	}
 }

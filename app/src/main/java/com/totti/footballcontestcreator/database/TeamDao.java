@@ -27,4 +27,7 @@ public interface TeamDao {
 
 	@Query("SELECT * FROM teams ORDER BY favorite DESC, name ASC")
 	LiveData<List<Team>> findAllTeamsOrdered();
+
+	@Query("SELECT * FROM teams WHERE id = :id LIMIT 1")
+	Team findTeamById(long id);
 }

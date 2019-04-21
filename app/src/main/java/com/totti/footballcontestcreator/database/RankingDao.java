@@ -23,8 +23,8 @@ public interface RankingDao {
 	void delete(Ranking ranking);
 
 	@Query("SELECT * FROM rankings WHERE team_id = :team_id")
-	LiveData<List<Ranking>> findAllRankingsByTeam(int team_id);
+	LiveData<List<Ranking>> findAllRankingsByTeam(long team_id);
 
 	@Query("SELECT * FROM rankings WHERE tournament_id = :tournament_id")
-	LiveData<List<Ranking>> findAllRankingsByTournament(int tournament_id);
+	LiveData<List<Ranking>> findAllRankingsByTournament(long tournament_id);
 }

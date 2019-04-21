@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/small_padding">
+
+    <TextView
+        android:id="@+id/match_day_textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/match_home_team_textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/match_home_score_textView"
+        app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        android:gravity="center"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/match_home_score_textView"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/match_home_team_textView"
+        app:layout_constraintRight_toLeftOf="@id/match_divider_textView"
+        app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        android:gravity="center"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/match_divider_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/match_home_score_textView"
+        app:layout_constraintRight_toLeftOf="@id/match_visitor_score_textView"
+        app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        android:gravity="center"
+        android:text="@string/divider"
+        android:textSize="30sp" />
+
+    <TextView
+        android:id="@+id/match_visitor_score_textView"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/match_divider_textView"
+        app:layout_constraintRight_toLeftOf="@id/match_visitor_team_textView"
+        app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        android:gravity="center"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/match_visitor_team_textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@id/match_visitor_score_textView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        android:gravity="center"
+        android:textSize="25sp" />
+
+</android.support.constraint.ConstraintLayout>

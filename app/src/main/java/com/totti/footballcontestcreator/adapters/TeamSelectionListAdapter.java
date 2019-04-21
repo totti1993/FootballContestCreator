@@ -65,8 +65,11 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 	@Override
 	public void onBindViewHolder(@NonNull TeamViewHolder holder, int position) {
 		Team team = teams.get(position);
+
 		holder.nameTextView.setText(team.getName());
+
 		holder.checkBox.setChecked(team.getSelected());
+
 		holder.team = team;
 	}
 

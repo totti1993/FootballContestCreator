@@ -63,7 +63,7 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 	@Override
 	public void onTeamClicked(Team team) {
 		Intent intent = new Intent(getActivity(), TeamActivity.class);
-		intent.putExtra("teamName", team.getName());
+		intent.putExtra("teamId", team.getId());
 		startActivity(intent);
 	}
 
