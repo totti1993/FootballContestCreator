@@ -90,14 +90,8 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.TeamVi
 
 		holder.nameTextView.setText(team.getName());
 
-		if(team.getFavorite()) {
-			holder.favoriteToggleButton.setChecked(true);
-			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_green);
-		}
-		else {
-			holder.favoriteToggleButton.setChecked(false);
-			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_border_grey);
-		}
+		holder.favoriteToggleButton.setChecked(team.getFavorite());
+		holder.favoriteToggleButton.setBackgroundResource(team.getFavorite() ? R.drawable.ic_star_green : R.drawable.ic_star_border_grey);
 
 		holder.team = team;
 	}

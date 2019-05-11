@@ -14,7 +14,7 @@ import java.util.List;
 public interface TeamDao {
 
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
-	void insert(Team team);
+	long insert(Team team);
 
 	@Update(onConflict = OnConflictStrategy.IGNORE)
 	void update(Team team);

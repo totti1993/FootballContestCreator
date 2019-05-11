@@ -27,4 +27,7 @@ public interface RankingDao {
 
 	@Query("SELECT * FROM rankings WHERE tournament_id = :tournament_id")
 	LiveData<List<Ranking>> findAllRankingsByTournament(long tournament_id);
+
+	@Query("SELECT * FROM rankings WHERE id = :id LIMIT 1")
+	Ranking findRankingById(long id);
 }

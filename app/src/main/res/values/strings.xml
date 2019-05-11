@@ -30,5 +30,8 @@
     <string name="comments">Comments</string>
 
     <string name="divider">-</string>
+    <string name="final_score">Final score</string>
+    <string name="match_details">Match details</string>
+    <string name="add_comments">Add comments</string>
 
 </resources>

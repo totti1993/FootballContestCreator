@@ -13,12 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.totti.footballcontestcreator.database.Team;
+import com.totti.footballcontestcreator.fragments.CommentsFragment;
 import com.totti.footballcontestcreator.fragments.MatchListFragment;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 
 public class TeamActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-	private long teamId;
+	private long id;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +37,12 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 		navigationView.setOnNavigationItemSelectedListener(this);
 
 		Intent intent = getIntent();
-		teamId = intent.getLongExtra("teamId", 0);
+		id = intent.getLongExtra("id", 0);
 		final TeamViewModel teamViewModel = ViewModelProviders.of(this).get(TeamViewModel.class);
 		new AsyncTask<Void, Void, Team>() {
 			@Override
 			protected Team doInBackground(Void... voids) {
-				return teamViewModel.getTeamById(teamId);
+				return teamViewModel.getTeamById(id);
 			}
 
 			@Override
@@ -68,27 +69,29 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-		MatchListFragment matchListFragment = new MatchListFragment();
 		Bundle args = new Bundle();
+		args.putString("type", "team");
+		args.putLong("id", id);
 
 		switch(item.getItemId()) {
 			case R.id.team_nav_statistics:
 				break;
 			case R.id.team_nav_results:
-				args.putString("type", "team");
-				args.putLong("id", teamId);
 				args.putString("tab", "results");
-				matchListFragment.setArguments(args);
-				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, matchListFragment).commit();
+				MatchListFragment resultListFragment = new MatchListFragment();
+				resultListFragment.setArguments(args);
+				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, resultListFragment).commit();
 				break;
 			case R.id.team_nav_matches:
-				args.putString("type", "team");
-				args.putLong("id", teamId);
 				args.putString("tab", "matches");
+				MatchListFragment matchListFragment = new MatchListFragment();
 				matchListFragment.setArguments(args);
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, matchListFragment).commit();
 				break;
 			case R.id.team_nav_comments:
+				CommentsFragment commentsFragment = new CommentsFragment();
+				commentsFragment.setArguments(args);
+				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, commentsFragment).commit();
 				break;
 			default:
 				break;

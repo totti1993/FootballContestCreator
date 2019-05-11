@@ -74,16 +74,21 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 						if(isValid()) {
 							final Tournament tournament = getTournament();
 
-							new AsyncTask<Void, Void, Void>() {
+							new AsyncTask<Void, Void, Long>() {
 								@Override
-								protected Void doInBackground(Void... voids) {
-									tournament.setId(tournamentViewModel.insert(tournament));
-									return null;
+								protected Long doInBackground(Void... voids) {
+									return new Long(tournamentViewModel.insert(tournament));
 								}
 
 								@Override
-								protected void onPostExecute(Void aVoid) {
-									createMatchesAndRankings(tournament);
+								protected void onPostExecute(Long id) {
+									if(id != -1) {
+										tournament.setId(id);
+										createMatchesAndRankings(tournament);
+									}
+									else {
+										Toast.makeText(getContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
+									}
 								}
 							}.execute();
 						}
@@ -185,7 +190,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 				new AsyncTask<ArrayList<Team>, Void, Void>() {
 					@Override
 					protected Void doInBackground(ArrayList<Team>... teams) {
-						rankingViewModel.insert(new Ranking(tournament.getId(), team.getId(), teams[0].indexOf(team) + 1));
+						rankingViewModel.insert(new Ranking(tournament.getId(), tournament.getName(), team.getId(), team.getName(), teams[0].indexOf(team) + 1));
 						return null;
 					}
 				}.execute(teams);
@@ -212,7 +217,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 							new AsyncTask<Integer, Void, Void>() {
 								@Override
 								protected Void doInBackground(Integer... day) {
-									matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(0).getId(), match.get(1).getId()));
+									matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(0).getId(), match.get(0).getName(), match.get(1).getId(), match.get(1).getName()));
 									return null;
 								}
 							}.execute(day);
@@ -221,7 +226,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 							new AsyncTask<Integer, Void, Void>() {
 								@Override
 								protected Void doInBackground(Integer... day) {
-									matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(1).getId(), match.get(0).getId()));
+									matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(1).getId(), match.get(1).getName(), match.get(0).getId(), match.get(0).getName()));
 									return null;
 								}
 							}.execute(day);
@@ -238,7 +243,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 						new AsyncTask<Integer, Void, Void>() {
 							@Override
 							protected Void doInBackground(Integer... day) {
-								matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(0).getId(), match.get(1).getId()));
+								matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(0).getId(), match.get(0).getName(), match.get(1).getId(), match.get(1).getName()));
 								return null;
 							}
 						}.execute(j);
@@ -247,7 +252,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 						new AsyncTask<Integer, Void, Void>() {
 							@Override
 							protected Void doInBackground(Integer... day) {
-								matchViewModel.insert(new Match(tournament.getId(), day[0], match.get(1).getId(), match.get(0).getId()));
+								matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(1).getId(), match.get(1).getName(), match.get(0).getId(), match.get(0).getName()));
 								return null;
 							}
 						}.execute(j);

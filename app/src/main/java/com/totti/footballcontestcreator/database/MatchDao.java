@@ -27,4 +27,7 @@ public interface MatchDao {
 
 	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND final_score = :final_score")
 	LiveData<List<Match>> findAllMatchesByTournamentAndFinalScore(long tournament_id, boolean final_score);
+
+	@Query("SELECT * FROM matches WHERE id = :id LIMIT 1")
+	Match findMatchById(long id);
 }

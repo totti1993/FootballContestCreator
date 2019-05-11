@@ -22,8 +22,8 @@ public class TeamViewModel extends AndroidViewModel {
 		teamsOrdered = appDatabase.teamDao().findAllTeamsOrdered();
 	}
 
-	public void insert(Team team) {
-		appDatabase.teamDao().insert(team);
+	public long insert(Team team) {
+		return appDatabase.teamDao().insert(team);
 	}
 
 	public void update(Team team) {

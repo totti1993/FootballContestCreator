@@ -1,9 +1,6 @@
 package com.totti.footballcontestcreator.adapters;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +9,6 @@ import android.widget.TextView;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.database.Match;
-import com.totti.footballcontestcreator.database.Team;
-import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +16,6 @@ import java.util.List;
 public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.MatchViewHolder> {
 
 	private List<Match> matches;
-	private TeamViewModel teamViewModel;
 
 	public interface OnMatchClickedListener {
 		void onMatchClicked(Match match);
@@ -29,10 +23,9 @@ public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.Matc
 
 	private OnMatchClickedListener listener;
 
-	public MatchListAdapter(OnMatchClickedListener listener, FragmentActivity context) {
+	public MatchListAdapter(OnMatchClickedListener listener) {
 		matches = new ArrayList<>();
 		this.listener = listener;
-		teamViewModel = ViewModelProviders.of(context).get(TeamViewModel.class);
 	}
 
 	class MatchViewHolder extends RecyclerView.ViewHolder {
@@ -79,32 +72,14 @@ public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.Matc
 		String matchDay = "Matchday #" + match.getMatch_day();
 		holder.matchDayTextView.setText(matchDay);
 
-		new AsyncTask<Match, Void, Team>() {
-			@Override
-			protected Team doInBackground(Match... matches) {
-				return teamViewModel.getTeamById(matches[0].getHome_id());
-			}
+		holder.matchHomeTeamTextView.setText(match.getHome_name());
 
-			@Override
-			protected void onPostExecute(Team team) {
-				holder.matchHomeTeamTextView.setText(team.getName());
-			}
-		}.execute(match);
-		new AsyncTask<Match, Void, Team>() {
-			@Override
-			protected Team doInBackground(Match... matches) {
-				return teamViewModel.getTeamById(matches[0].getVisitor_id());
-			}
-
-			@Override
-			protected void onPostExecute(Team team) {
-				holder.matchVisitorTeamTextView.setText(team.getName());
-			}
-		}.execute(match);
+		holder.matchVisitorTeamTextView.setText(match.getVisitor_name());
 
 		if((match.getHome_score() != 0) || (match.getVisitor_score() != 0) || (match.getFinal_score())) {
-			holder.matchHomeScoreTextView.setText(match.getHome_score());
-			holder.matchVisitorScoreTextView.setText(match.getVisitor_score());
+			holder.matchHomeScoreTextView.setText(Integer.toString(match.getHome_score()));
+
+			holder.matchVisitorScoreTextView.setText(Integer.toString(match.getVisitor_score()));
 		}
 
 		holder.match = match;

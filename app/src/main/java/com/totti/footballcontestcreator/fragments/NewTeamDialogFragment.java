@@ -42,19 +42,23 @@ public class NewTeamDialogFragment extends DialogFragment {
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
-						if (isValid()) {
+						if(isValid()) {
 							final Team team = getTeam();
 
-							new AsyncTask<Void, Void, Void>() {
+							new AsyncTask<Void, Void, Long>() {
 								@Override
-								protected Void doInBackground(Void... voids) {
-									teamViewModel.insert(team);
-									return null;
+								protected Long doInBackground(Void... voids) {
+									return new Long(teamViewModel.insert(team));
 								}
 
 								@Override
-								protected void onPostExecute(Void aVoid) {
-									Toast.makeText(getContext(), "Team \"" + team.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+								protected void onPostExecute(Long id) {
+									if(id != -1) {
+										Toast.makeText(getContext(), "Team \"" + team.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+									}
+									else {
+										Toast.makeText(getContext(), "Team not created!", Toast.LENGTH_SHORT).show();
+									}
 								}
 							}.execute();
 						}

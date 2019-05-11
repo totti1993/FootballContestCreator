@@ -63,7 +63,7 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 	@Override
 	public void onTournamentClicked(Tournament tournament) {
 		Intent intent = new Intent(getActivity(), TournamentActivity.class);
-		intent.putExtra("tournamentId", tournament.getId());
+		intent.putExtra("id", tournament.getId());
 		startActivity(intent);
 	}
 

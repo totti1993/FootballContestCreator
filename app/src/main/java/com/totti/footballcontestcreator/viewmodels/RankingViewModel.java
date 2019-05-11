@@ -37,4 +37,8 @@ public class RankingViewModel extends AndroidViewModel {
 	public LiveData<List<Ranking>> getAllRankingsByTournament(long tournament_id) {
 		return appDatabase.rankingDao().findAllRankingsByTournament(tournament_id);
 	}
+
+	public Ranking getRankingById(long id) {
+		return appDatabase.rankingDao().findRankingById(id);
+	}
 }

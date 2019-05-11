@@ -94,14 +94,8 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 
 		holder.typeTextView.setText(tournament.getType());
 
-		if(tournament.getFavorite()) {
-			holder.favoriteToggleButton.setChecked(true);
-			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_green);
-		}
-		else {
-			holder.favoriteToggleButton.setChecked(false);
-			holder.favoriteToggleButton.setBackgroundResource(R.drawable.ic_star_border_grey);
-		}
+		holder.favoriteToggleButton.setChecked(tournament.getFavorite());
+		holder.favoriteToggleButton.setBackgroundResource(tournament.getFavorite() ? R.drawable.ic_star_green : R.drawable.ic_star_border_grey);
 
 		holder.tournament = tournament;
 	}

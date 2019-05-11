@@ -13,12 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.totti.footballcontestcreator.database.Tournament;
+import com.totti.footballcontestcreator.fragments.CommentsFragment;
 import com.totti.footballcontestcreator.fragments.MatchListFragment;
 import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 public class TournamentActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-	private long tournamentId;
+	private long id;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +37,12 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 		navigationView.setOnNavigationItemSelectedListener(this);
 
 		Intent intent = getIntent();
-		tournamentId = intent.getLongExtra("tournamentId", 0);
+		id = intent.getLongExtra("id", 0);
 		final TournamentViewModel tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
 		new AsyncTask<Void, Void, Tournament>() {
 			@Override
 			protected Tournament doInBackground(Void... voids) {
-				return tournamentViewModel.getTournamentById(tournamentId);
+				return tournamentViewModel.getTournamentById(id);
 			}
 
 			@Override
@@ -68,27 +69,29 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-		MatchListFragment matchListFragment = new MatchListFragment();
 		Bundle args = new Bundle();
+		args.putString("type", "tournament");
+		args.putLong("id", id);
 
 		switch(item.getItemId()) {
 			case R.id.tournament_nav_table:
 				break;
 			case R.id.tournament_nav_results:
-				args.putString("type", "tournament");
-				args.putLong("id", tournamentId);
 				args.putString("tab", "results");
-				matchListFragment.setArguments(args);
-				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, matchListFragment).commit();
+				MatchListFragment resultListFragment = new MatchListFragment();
+				resultListFragment.setArguments(args);
+				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, resultListFragment).commit();
 				break;
 			case R.id.tournament_nav_matches:
-				args.putString("type", "tournament");
-				args.putLong("id", tournamentId);
 				args.putString("tab", "matches");
+				MatchListFragment matchListFragment = new MatchListFragment();
 				matchListFragment.setArguments(args);
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, matchListFragment).commit();
 				break;
 			case R.id.tournament_nav_comments:
+				CommentsFragment commentsFragment = new CommentsFragment();
+				commentsFragment.setArguments(args);
+				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, commentsFragment).commit();
 				break;
 			default:
 				break;

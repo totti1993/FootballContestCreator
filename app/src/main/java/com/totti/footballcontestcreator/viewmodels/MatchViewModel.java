@@ -37,4 +37,8 @@ public class MatchViewModel extends AndroidViewModel {
 	public LiveData<List<Match>> getAllMatchesByTournamentAndFinalScore(long tournament_id, boolean final_score) {
 		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScore(tournament_id, final_score);
 	}
+
+	public Match getMatchById(long id) {
+		return appDatabase.matchDao().findMatchById(id);
+	}
 }
