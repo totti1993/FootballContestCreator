@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -46,8 +47,11 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 		});
 
 		RecyclerView recyclerView = rootView.findViewById(R.id.item_recyclerView);
-		recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+		recyclerView.setLayoutManager(linearLayoutManager);
 		recyclerView.setAdapter(teamListAdapter);
+		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
+		recyclerView.addItemDecoration(dividerItemDecoration);
 
 		FloatingActionButton fab = rootView.findViewById(R.id.new_item_fab);
 		fab.setOnClickListener(new View.OnClickListener() {

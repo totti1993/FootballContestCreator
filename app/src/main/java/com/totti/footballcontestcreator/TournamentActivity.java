@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.totti.footballcontestcreator.database.Tournament;
 import com.totti.footballcontestcreator.fragments.CommentsFragment;
 import com.totti.footballcontestcreator.fragments.MatchListFragment;
+import com.totti.footballcontestcreator.fragments.TableFragment;
 import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 public class TournamentActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -32,12 +33,15 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
+		Intent intent = getIntent();
+		id = intent.getLongExtra("id", 0);
+
 		BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
 		navigationView.inflateMenu(R.menu.tournament_navigation_bar);
 		navigationView.setOnNavigationItemSelectedListener(this);
+		navigationView.setSelectedItemId(R.id.tournament_nav_table);
+		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
-		Intent intent = getIntent();
-		id = intent.getLongExtra("id", 0);
 		final TournamentViewModel tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
 		new AsyncTask<Void, Void, Tournament>() {
 			@Override
@@ -70,11 +74,14 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		Bundle args = new Bundle();
-		args.putString("type", "tournament");
 		args.putLong("id", id);
+		args.putString("type", "tournament");
 
 		switch(item.getItemId()) {
 			case R.id.tournament_nav_table:
+				TableFragment tableFragment = new TableFragment();
+				tableFragment.setArguments(args);
+				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, tableFragment).commit();
 				break;
 			case R.id.tournament_nav_results:
 				args.putString("tab", "results");

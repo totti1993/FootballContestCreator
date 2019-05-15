@@ -14,6 +14,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textStyle="italic"
         android:textSize="15sp" />
 
     <TextView
@@ -23,8 +24,11 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/match_home_score_textView"
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        app:layout_constraintBottom_toBottomOf="@id/match_home_score_textView"
         android:gravity="center"
-        android:textSize="25sp" />
+        android:textSize="20sp"
+        android:singleLine="true"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/match_home_score_textView"
@@ -34,7 +38,8 @@
         app:layout_constraintRight_toLeftOf="@id/match_divider_textView"
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         android:gravity="center"
-        android:textSize="25sp" />
+        android:textStyle="bold"
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/match_divider_textView"
@@ -45,6 +50,7 @@
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         android:gravity="center"
         android:text="@string/divider"
+        android:textStyle="bold"
         android:textSize="30sp" />
 
     <TextView
@@ -55,7 +61,8 @@
         app:layout_constraintRight_toLeftOf="@id/match_visitor_team_textView"
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         android:gravity="center"
-        android:textSize="25sp" />
+        android:textStyle="bold"
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/match_visitor_team_textView"
@@ -64,7 +71,10 @@
         app:layout_constraintLeft_toRightOf="@id/match_visitor_score_textView"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
+        app:layout_constraintBottom_toBottomOf="@id/match_visitor_score_textView"
         android:gravity="center"
-        android:textSize="25sp" />
+        android:textSize="20sp"
+        android:singleLine="true"
+        android:ellipsize="end" />
 
 </android.support.constraint.ConstraintLayout>

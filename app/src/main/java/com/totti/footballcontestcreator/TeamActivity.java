@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.fragments.CommentsFragment;
 import com.totti.footballcontestcreator.fragments.MatchListFragment;
+import com.totti.footballcontestcreator.fragments.StatisticsFragment;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 
 public class TeamActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
@@ -32,12 +33,15 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
+		Intent intent = getIntent();
+		id = intent.getLongExtra("id", 0);
+
 		BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
 		navigationView.inflateMenu(R.menu.team_navigation_bar);
 		navigationView.setOnNavigationItemSelectedListener(this);
+		navigationView.setSelectedItemId(R.id.team_nav_statistics);
+		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
-		Intent intent = getIntent();
-		id = intent.getLongExtra("id", 0);
 		final TeamViewModel teamViewModel = ViewModelProviders.of(this).get(TeamViewModel.class);
 		new AsyncTask<Void, Void, Team>() {
 			@Override
@@ -70,11 +74,14 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		Bundle args = new Bundle();
-		args.putString("type", "team");
 		args.putLong("id", id);
+		args.putString("type", "team");
 
 		switch(item.getItemId()) {
 			case R.id.team_nav_statistics:
+				StatisticsFragment statisticsFragment = new StatisticsFragment();
+				statisticsFragment.setArguments(args);
+				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, statisticsFragment).commit();
 				break;
 			case R.id.team_nav_results:
 				args.putString("tab", "results");

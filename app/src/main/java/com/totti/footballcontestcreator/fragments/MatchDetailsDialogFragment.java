@@ -19,7 +19,11 @@ import android.widget.Toast;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.database.Match;
+import com.totti.footballcontestcreator.database.Ranking;
+import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.viewmodels.MatchViewModel;
+import com.totti.footballcontestcreator.viewmodels.RankingViewModel;
+import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 
 public class MatchDetailsDialogFragment extends DialogFragment {
 
@@ -37,6 +41,8 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 	private Match match;
 
 	private MatchViewModel matchViewModel;
+	private RankingViewModel rankingViewModel;
+	private TeamViewModel teamViewModel;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +69,8 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 		match.setFinal_score(final_score);
 
 		matchViewModel = ViewModelProviders.of(getActivity()).get(MatchViewModel.class);
+		rankingViewModel = ViewModelProviders.of(getActivity()).get(RankingViewModel.class);
+		teamViewModel = ViewModelProviders.of(getActivity()).get(TeamViewModel.class);
 	}
 
 	@NonNull
@@ -86,6 +94,9 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 
 								@Override
 								protected void onPostExecute(Void aVoid) {
+									if(match.getFinal_score()) {
+										updateTeamsAndRankings(match);
+									}
 									Toast.makeText(getContext(), "Match updated!", Toast.LENGTH_SHORT).show();
 								}
 							}.execute();
@@ -106,7 +117,8 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 		tournamentNameTextView.setText(match.getTournament_name());
 
 		matchDayNumberTextView = contentView.findViewById(R.id.match_day_number_textView);
-		matchDayNumberTextView.setText(Integer.toString(match.getMatch_day()));
+		String matchDay = "Matchday #" + match.getMatch_day();
+		matchDayNumberTextView.setText(matchDay);
 
 		homeTeamScoreEditText = contentView.findViewById(R.id.match_home_team_score_editText);
 		homeTeamScoreEditText.setText(Integer.toString(match.getHome_score()));
@@ -151,5 +163,129 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 		match.setComments(commentsEditText.getText().toString());
 
 		return match;
+	}
+
+	private void updateTeamsAndRankings(final Match match) {
+		new AsyncTask<Void, Void, Team>() {
+			@Override
+			protected Team doInBackground(Void... voids) {
+				return teamViewModel.getTeamById(match.getHome_id());
+			}
+
+			@Override
+			protected void onPostExecute(final Team team) {
+				if(match.getHome_score() > match.getVisitor_score()) {
+					team.setAll_time_wins(team.getAll_time_wins() + 1);
+				}
+				else if(match.getHome_score() == match.getVisitor_score()) {
+					team.setAll_time_draws(team.getAll_time_draws() + 1);
+				}
+				else {
+					team.setAll_time_losses(team.getAll_time_losses() + 1);
+				}
+
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						teamViewModel.update(team);
+						return null;
+					}
+				}.execute();
+			}
+		}.execute();
+
+		new AsyncTask<Void, Void, Team>() {
+			@Override
+			protected Team doInBackground(Void... voids) {
+				return teamViewModel.getTeamById(match.getVisitor_id());
+			}
+
+			@Override
+			protected void onPostExecute(final Team team) {
+				if(match.getVisitor_score() > match.getHome_score()) {
+					team.setAll_time_wins(team.getAll_time_wins() + 1);
+				}
+				else if(match.getVisitor_score() == match.getHome_score()) {
+					team.setAll_time_draws(team.getAll_time_draws() + 1);
+				}
+				else {
+					team.setAll_time_losses(team.getAll_time_losses() + 1);
+				}
+
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						teamViewModel.update(team);
+						return null;
+					}
+				}.execute();
+			}
+		}.execute();
+
+		new AsyncTask<Void, Void, Ranking>() {
+			@Override
+			protected Ranking doInBackground(Void... voids) {
+				return rankingViewModel.getRankingByTournamentAndTeam(match.getTournament_id(), match.getHome_id());
+			}
+
+			@Override
+			protected void onPostExecute(final Ranking ranking) {
+				if(match.getHome_score() > match.getVisitor_score()) {
+					ranking.setPoints(ranking.getPoints() + 3);
+					ranking.setWins(ranking.getWins() + 1);
+				}
+				else if(match.getHome_score() == match.getVisitor_score()) {
+					ranking.setPoints(ranking.getPoints() + 1);
+					ranking.setDraws(ranking.getDraws() + 1);
+				}
+				else {
+					ranking.setLosses(ranking.getLosses() + 1);
+				}
+				ranking.setGoals_for(ranking.getGoals_for() + match.getHome_score());
+				ranking.setGoals_against(ranking.getGoals_against() + match.getVisitor_score());
+				ranking.setGoal_difference(ranking.getGoal_difference() + match.getHome_score() - match.getVisitor_score());
+
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						rankingViewModel.update(ranking);
+						return null;
+					}
+				}.execute();
+			}
+		}.execute();
+
+		new AsyncTask<Void, Void, Ranking>() {
+			@Override
+			protected Ranking doInBackground(Void... voids) {
+				return rankingViewModel.getRankingByTournamentAndTeam(match.getTournament_id(), match.getVisitor_id());
+			}
+
+			@Override
+			protected void onPostExecute(final Ranking ranking) {
+				if(match.getVisitor_score() > match.getHome_score()) {
+					ranking.setPoints(ranking.getPoints() + 3);
+					ranking.setWins(ranking.getWins() + 1);
+				}
+				else if(match.getVisitor_score() == match.getHome_score()) {
+					ranking.setPoints(ranking.getPoints() + 1);
+					ranking.setDraws(ranking.getDraws() + 1);
+				}
+				else {
+					ranking.setLosses(ranking.getLosses() + 1);
+				}
+				ranking.setGoals_for(ranking.getGoals_for() + match.getVisitor_score());
+				ranking.setGoals_against(ranking.getGoals_against() + match.getHome_score());
+				ranking.setGoal_difference(ranking.getGoal_difference() + match.getVisitor_score() - match.getHome_score());
+
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						rankingViewModel.update(ranking);
+						return null;
+					}
+				}.execute();
+			}
+		}.execute();
 	}
 }

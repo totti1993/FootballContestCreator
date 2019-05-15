@@ -5,4 +5,11 @@
     <color name="colorPrimary">#008800</color>
     <color name="colorAccent">#00AA00</color>
 
+    <color name="colorWhite">#FFFFFF</color>
+
+    <color name="colorGold">#FEE101</color>
+    <color name="colorSilver">#A7A7AD</color>
+    <color name="colorBronze">#A77044</color>
+    <color name="colorLast">#FF2400</color>
+
 </resources>

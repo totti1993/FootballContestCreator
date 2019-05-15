@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		NavigationView navigationView = findViewById(R.id.main_navigation_view);
 		navigationView.setNavigationItemSelectedListener(this);
-		navigationView.setCheckedItem(R.id.nav_favorites);
+		navigationView.setCheckedItem(R.id.nav_tournaments);
 		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 	}
 
@@ -73,9 +73,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 		int id = menuItem.getItemId();
 		switch(id) {
-			case R.id.nav_favorites:
-				this.setTitle("Favorites");
-				break;
 			case R.id.nav_tournaments:
 				this.setTitle("Tournaments");
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_content, new TournamentListFragment()).commit();
@@ -84,9 +81,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				this.setTitle("Teams");
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.main_fragment_content, new TeamListFragment()).commit();
 				break;
+			/*
+			case R.id.nav_favorites:
+				this.setTitle("Favorites");
+				break;
 			case R.id.nav_settings:
 				this.setTitle("Settings");
 				break;
+			*/
 			default:
 				break;
 		}

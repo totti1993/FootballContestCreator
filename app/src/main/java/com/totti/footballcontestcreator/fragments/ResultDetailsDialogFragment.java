@@ -100,7 +100,8 @@ public class ResultDetailsDialogFragment extends DialogFragment {
 		tournamentNameTextView.setText(match.getTournament_name());
 
 		matchDayNumberTextView = contentView.findViewById(R.id.result_day_number_textView);
-		matchDayNumberTextView.setText(Integer.toString(match.getMatch_day()));
+		String matchDay = "Matchday #" + match.getMatch_day();
+		matchDayNumberTextView.setText(matchDay);
 
 		homeTeamScoreTextView = contentView.findViewById(R.id.result_home_team_score_textView);
 		homeTeamScoreTextView.setText(Integer.toString(match.getHome_score()));

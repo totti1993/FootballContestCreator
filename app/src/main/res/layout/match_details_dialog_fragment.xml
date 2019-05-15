@@ -15,14 +15,18 @@
             android:id="@+id/match_tournament_name_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:textStyle="bold|italic"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/match_day_number_textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/big_margin" />
+            android:layout_marginTop="@dimen/big_margin"
+            android:textStyle="italic"
+            android:textSize="18sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -40,7 +44,10 @@
                 android:id="@+id/match_home_team_name_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/small_margin" />
+                android:layout_marginLeft="@dimen/small_margin"
+                android:textSize="20sp"
+                android:singleLine="true"
+                android:ellipsize="end" />
 
         </LinearLayout>
 
@@ -60,7 +67,10 @@
                 android:id="@+id/match_visitor_team_name_textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/small_margin" />
+                android:layout_marginLeft="@dimen/small_margin"
+                android:textSize="20sp"
+                android:singleLine="true"
+                android:ellipsize="end" />
 
         </LinearLayout>
 

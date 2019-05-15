@@ -34,11 +34,15 @@ public class RankingViewModel extends AndroidViewModel {
 		return appDatabase.rankingDao().findAllRankingsByTeam(team_id);
 	}
 
-	public LiveData<List<Ranking>> getAllRankingsByTournament(long tournament_id) {
-		return appDatabase.rankingDao().findAllRankingsByTournament(tournament_id);
+	public LiveData<List<Ranking>> getAllRankingsByTournamentOrdered(long tournament_id) {
+		return appDatabase.rankingDao().findAllRankingsByTournamentOrdered(tournament_id);
 	}
 
 	public Ranking getRankingById(long id) {
 		return appDatabase.rankingDao().findRankingById(id);
+	}
+
+	public Ranking getRankingByTournamentAndTeam(long tournament_id, long team_id) {
+		return appDatabase.rankingDao().findRankingByTournamentAndTeam(tournament_id, team_id);
 	}
 }

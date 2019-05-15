@@ -25,8 +25,8 @@ public class CommentsFragment extends Fragment {
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		final View rootView = inflater.inflate(R.layout.comments_fragment, container, false);
 
-		final String type = this.getArguments().getString("type");
 		final long id = this.getArguments().getLong("id");
+		final String type = this.getArguments().getString("type");
 
 		final TextView comments = rootView.findViewById(R.id.comments_textView);
 		final FloatingActionButton fab = rootView.findViewById(R.id.add_comments_fab);

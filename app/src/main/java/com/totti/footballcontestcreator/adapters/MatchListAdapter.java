@@ -81,6 +81,11 @@ public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.Matc
 
 			holder.matchVisitorScoreTextView.setText(Integer.toString(match.getVisitor_score()));
 		}
+		else {
+			holder.matchHomeScoreTextView.setText(null);
+
+			holder.matchVisitorScoreTextView.setText(null);
+		}
 
 		holder.match = match;
 	}

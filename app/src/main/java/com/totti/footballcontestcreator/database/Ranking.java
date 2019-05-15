@@ -50,6 +50,9 @@ public class Ranking {
 	@ColumnInfo(name = "goals_against")
 	private int goals_against;
 
+	@ColumnInfo(name = "goal_difference")
+	private int goal_difference;
+
 	@ColumnInfo(name = "comments")
 	private String comments;
 
@@ -68,6 +71,7 @@ public class Ranking {
 		this.losses = 0;
 		this.goals_for = 0;
 		this.goals_against = 0;
+		this.goal_difference = 0;
 		this.active = true;
 	}
 
@@ -167,6 +171,14 @@ public class Ranking {
 
 	public void setGoals_against(int goals_against) {
 		this.goals_against = goals_against;
+	}
+
+	public int getGoal_difference() {
+		return this.goal_difference;
+	}
+
+	public void setGoal_difference(int goal_difference) {
+		this.goal_difference = goal_difference;
 	}
 
 	public String getComments() {
