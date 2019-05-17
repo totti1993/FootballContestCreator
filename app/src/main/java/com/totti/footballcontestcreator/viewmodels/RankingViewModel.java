@@ -45,4 +45,8 @@ public class RankingViewModel extends AndroidViewModel {
 	public Ranking getRankingByTournamentAndTeam(long tournament_id, long team_id) {
 		return appDatabase.rankingDao().findRankingByTournamentAndTeam(tournament_id, team_id);
 	}
+
+	public List<Ranking> getAllActiveRankingsByTournament(long tournament_id) {
+		return appDatabase.rankingDao().findAllActiveRankingsByTournament(tournament_id);
+	}
 }

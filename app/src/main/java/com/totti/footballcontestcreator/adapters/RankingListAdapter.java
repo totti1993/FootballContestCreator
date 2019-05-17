@@ -16,9 +16,11 @@ import java.util.List;
 public class RankingListAdapter extends RecyclerView.Adapter<RankingListAdapter.RankingViewHolder> {
 
 	private List<Ranking> rankings;
+	private String tournamentType;
 
-	public RankingListAdapter() {
+	public RankingListAdapter(String tournamentType) {
 		rankings = new ArrayList<>();
+		this.tournamentType = tournamentType;
 	}
 
 	class RankingViewHolder extends RecyclerView.ViewHolder {
@@ -59,20 +61,33 @@ public class RankingListAdapter extends RecyclerView.Adapter<RankingListAdapter.
 
 		String place = position + 1 + ".";
 		holder.rankingPlaceTextView.setText(place);
-		if(position == 0) {
-			holder.rankingPlaceTextView.setBackgroundResource(R.color.colorGold);
-		}
-		else if(position == 1) {
-			holder.rankingPlaceTextView.setBackgroundResource(R.color.colorSilver);
-		}
-		else if(position == 2) {
-			holder.rankingPlaceTextView.setBackgroundResource(R.color.colorBronze);
-		}
-		else if(position == (getItemCount() - 1)) {
-			holder.rankingPlaceTextView.setBackgroundResource(R.color.colorLast);
+		if(tournamentType.equals("Championship")) {
+			if(position == 0) {
+				holder.rankingPlaceTextView.setBackgroundResource(R.color.colorGold);
+			}
+			else if(position == 1) {
+				holder.rankingPlaceTextView.setBackgroundResource(R.color.colorSilver);
+			}
+			else if(position == 2) {
+				holder.rankingPlaceTextView.setBackgroundResource(R.color.colorBronze);
+			}
+			else if(position == (getItemCount() - 1)) {
+				holder.rankingPlaceTextView.setBackgroundResource(R.color.colorLast);
+			}
+			else {
+				holder.rankingPlaceTextView.setBackgroundResource(0);
+			}
 		}
 		else {
-			holder.rankingPlaceTextView.setBackgroundResource(0);
+			if(position == 0) {
+				holder.rankingPlaceTextView.setBackgroundResource(R.color.colorGold);
+			}
+			else if(!ranking.getActive()) {
+				holder.rankingPlaceTextView.setBackgroundResource(R.color.colorLast);
+			}
+			else {
+				holder.rankingPlaceTextView.setBackgroundResource(0);
+			}
 		}
 
 		holder.rankingTeamNameTextView.setText(ranking.getTeam_name());

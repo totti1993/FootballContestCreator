@@ -85,12 +85,14 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 				break;
 			case R.id.team_nav_results:
 				args.putString("tab", "results");
+				args.putString("tournamentType", "Mixed");
 				MatchListFragment resultListFragment = new MatchListFragment();
 				resultListFragment.setArguments(args);
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, resultListFragment).commit();
 				break;
 			case R.id.team_nav_matches:
 				args.putString("tab", "matches");
+				args.putString("tournamentType", "Mixed");
 				MatchListFragment matchListFragment = new MatchListFragment();
 				matchListFragment.setArguments(args);
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, matchListFragment).commit();

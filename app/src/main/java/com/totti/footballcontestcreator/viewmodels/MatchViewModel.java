@@ -41,4 +41,12 @@ public class MatchViewModel extends AndroidViewModel {
 	public Match getMatchById(long id) {
 		return appDatabase.matchDao().findMatchById(id);
 	}
+
+	public List<Match> getAllMatchesByTournamentAndFinalScoreAsync(long tournament_id, boolean final_score) {
+		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScoreAsync(tournament_id, final_score);
+	}
+
+	public Match getMatchByTournamentAndTeamsInElimination(long tournament_id, long home_id, long visitor_id) {
+		return appDatabase.matchDao().findMatchByTournamentAndTeamsInElimination(tournament_id, home_id, visitor_id);
+	}
 }

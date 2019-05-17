@@ -33,4 +33,7 @@ public interface RankingDao {
 
 	@Query("SELECT * FROM rankings WHERE tournament_id = :tournament_id AND team_id = :team_id LIMIT 1")
 	Ranking findRankingByTournamentAndTeam(long tournament_id, long team_id);
+
+	@Query("SELECT * FROM rankings WHERE tournament_id = :tournament_id AND active = 1")
+	List<Ranking> findAllActiveRankingsByTournament(long tournament_id);
 }

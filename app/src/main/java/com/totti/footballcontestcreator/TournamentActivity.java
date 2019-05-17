@@ -21,6 +21,7 @@ import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 public class TournamentActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
 	private long id;
+	private String tournamentType;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +37,9 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 		Intent intent = getIntent();
 		id = intent.getLongExtra("id", 0);
 
-		BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
+		final BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
 		navigationView.inflateMenu(R.menu.tournament_navigation_bar);
 		navigationView.setOnNavigationItemSelectedListener(this);
-		navigationView.setSelectedItemId(R.id.tournament_nav_table);
-		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
 		final TournamentViewModel tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
 		new AsyncTask<Void, Void, Tournament>() {
@@ -52,6 +51,10 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 			@Override
 			protected void onPostExecute(Tournament tournament) {
 				setTitle(tournament.getName());
+				tournamentType = tournament.getType();
+
+				navigationView.setSelectedItemId(R.id.tournament_nav_table);
+				onNavigationItemSelected(navigationView.getMenu().getItem(0));
 			}
 		}.execute();
 	}
@@ -76,6 +79,7 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 		Bundle args = new Bundle();
 		args.putLong("id", id);
 		args.putString("type", "tournament");
+		args.putString("tournamentType", tournamentType);
 
 		switch(item.getItemId()) {
 			case R.id.tournament_nav_table:

@@ -30,4 +30,10 @@ public interface MatchDao {
 
 	@Query("SELECT * FROM matches WHERE id = :id LIMIT 1")
 	Match findMatchById(long id);
+
+	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND final_score = :final_score")
+	List<Match> findAllMatchesByTournamentAndFinalScoreAsync(long tournament_id, boolean final_score);
+
+	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND home_id = :home_id AND visitor_id = :visitor_id LIMIT 1")
+	Match findMatchByTournamentAndTeamsInElimination(long tournament_id, long home_id, long visitor_id);
 }

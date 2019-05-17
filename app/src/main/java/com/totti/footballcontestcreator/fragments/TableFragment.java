@@ -27,8 +27,9 @@ public class TableFragment extends Fragment {
 		View rootView = inflater.inflate(R.layout.ranking_list_fragment, container, false);
 
 		long id = this.getArguments().getLong("id");
+		String tournamentType = this.getArguments().getString("tournamentType");
 
-		final RankingListAdapter rankingListAdapter = new RankingListAdapter();
+		final RankingListAdapter rankingListAdapter = new RankingListAdapter(tournamentType);
 
 		RankingViewModel rankingViewModel = ViewModelProviders.of(getActivity()).get(RankingViewModel.class);
 		rankingViewModel.getAllRankingsByTournamentOrdered(id).observe(this, new Observer<List<Ranking>>() {
