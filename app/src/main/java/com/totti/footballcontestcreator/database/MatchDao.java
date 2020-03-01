@@ -1,12 +1,12 @@
 package com.totti.footballcontestcreator.database;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.persistence.room.Dao;
-import android.arch.persistence.room.Delete;
-import android.arch.persistence.room.Insert;
-import android.arch.persistence.room.OnConflictStrategy;
-import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
+import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -16,24 +16,30 @@ public interface MatchDao {
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	void insert(Match match);
 
+	@Insert(onConflict = OnConflictStrategy.IGNORE)
+	void insertAll(List<Match> matches);
+
 	@Update(onConflict = OnConflictStrategy.IGNORE)
 	void update(Match match);
 
 	@Delete
 	void delete(Match match);
 
-	@Query("SELECT * FROM matches WHERE (home_id = :team_id OR visitor_id = :team_id) AND final_score = :final_score")
-	LiveData<List<Match>> findAllMatchesByTeamAndFinalScore(long team_id, boolean final_score);
+	@Query("DELETE FROM matches")
+	void deleteAll();
 
-	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND final_score = :final_score")
-	LiveData<List<Match>> findAllMatchesByTournamentAndFinalScore(long tournament_id, boolean final_score);
+	@Query("SELECT * FROM matches WHERE (home_id LIKE :team_id OR visitor_id LIKE :team_id) AND final_score = :final_score")
+	LiveData<List<Match>> findAllMatchesByTeamAndFinalScore(String team_id, boolean final_score);
 
-	@Query("SELECT * FROM matches WHERE id = :id LIMIT 1")
-	Match findMatchById(long id);
+	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND final_score = :final_score")
+	LiveData<List<Match>> findAllMatchesByTournamentAndFinalScore(String tournament_id, boolean final_score);
 
-	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND final_score = :final_score")
-	List<Match> findAllMatchesByTournamentAndFinalScoreAsync(long tournament_id, boolean final_score);
+	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND final_score = :final_score")
+	List<Match> findAllMatchesByTournamentAndFinalScoreAsync(String tournament_id, boolean final_score);
 
-	@Query("SELECT * FROM matches WHERE tournament_id = :tournament_id AND home_id = :home_id AND visitor_id = :visitor_id LIMIT 1")
-	Match findMatchByTournamentAndTeamsInElimination(long tournament_id, long home_id, long visitor_id);
+	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND home_id LIKE :home_id AND visitor_id LIKE :visitor_id LIMIT 1")
+	Match findMatchByTournamentAndTeamsInEliminationAsync(String tournament_id, String home_id, String visitor_id);
+
+	@Query("SELECT * FROM matches WHERE id LIKE :id LIMIT 1")
+	Match findMatchByIdAsync(String id);
 }

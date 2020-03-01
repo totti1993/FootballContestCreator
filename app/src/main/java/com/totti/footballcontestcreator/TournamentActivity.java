@@ -1,14 +1,15 @@
 package com.totti.footballcontestcreator;
 
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,7 +21,7 @@ import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 public class TournamentActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-	private long id;
+	private String id;
 	private String tournamentType;
 
 	@Override
@@ -35,14 +36,24 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		Intent intent = getIntent();
-		id = intent.getLongExtra("id", 0);
+		id = intent.getStringExtra("id");
+		tournamentType = intent.getStringExtra("tournamentType");
 
-		final BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
+		BottomNavigationView navigationView = findViewById(R.id.shared_bottom_navigation_view);
 		navigationView.inflateMenu(R.menu.tournament_navigation_bar);
 		navigationView.setOnNavigationItemSelectedListener(this);
+		navigationView.setSelectedItemId(R.id.tournament_nav_table);
+		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
-		final TournamentViewModel tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
-		new AsyncTask<Void, Void, Tournament>() {
+		TournamentViewModel tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
+		tournamentViewModel.getTournamentById(id).observe(this, new Observer<Tournament>() {
+			@Override
+			public void onChanged(Tournament tournament) {
+				setTitle(tournament.getName());
+			}
+		});
+
+		/*new AsyncTask<Void, Void, Tournament>() {
 			@Override
 			protected Tournament doInBackground(Void... voids) {
 				return tournamentViewModel.getTournamentById(id);
@@ -51,12 +62,8 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 			@Override
 			protected void onPostExecute(Tournament tournament) {
 				setTitle(tournament.getName());
-				tournamentType = tournament.getType();
-
-				navigationView.setSelectedItemId(R.id.tournament_nav_table);
-				onNavigationItemSelected(navigationView.getMenu().getItem(0));
 			}
-		}.execute();
+		}.execute();*/
 	}
 
 	@Override
@@ -77,9 +84,9 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		Bundle args = new Bundle();
-		args.putLong("id", id);
-		args.putString("type", "tournament");
+		args.putString("id", id);
 		args.putString("tournamentType", tournamentType);
+		args.putString("type", "tournament");
 
 		switch(item.getItemId()) {
 			case R.id.tournament_nav_table:

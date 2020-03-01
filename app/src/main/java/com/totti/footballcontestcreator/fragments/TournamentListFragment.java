@@ -1,23 +1,26 @@
 package com.totti.footballcontestcreator.fragments;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.TournamentActivity;
@@ -29,6 +32,8 @@ import java.util.List;
 
 public class TournamentListFragment extends Fragment implements TournamentListAdapter.OnTournamentClickedListener {
 
+	private DatabaseReference onlineTournaments;
+
 	private TournamentViewModel tournamentViewModel;
 
 	@Nullable
@@ -37,6 +42,8 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 		View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
 
 		final TournamentListAdapter tournamentListAdapter = new TournamentListAdapter(this);
+
+		onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
 
 		tournamentViewModel = ViewModelProviders.of(getActivity()).get(TournamentViewModel.class);
 		tournamentViewModel.getAllTournamentsOrdered().observe(this, new Observer<List<Tournament>>() {
@@ -68,6 +75,7 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 	public void onTournamentClicked(Tournament tournament) {
 		Intent intent = new Intent(getActivity(), TournamentActivity.class);
 		intent.putExtra("id", tournament.getId());
+		intent.putExtra("tournamentType", tournament.getType());
 		startActivity(intent);
 	}
 
@@ -77,7 +85,11 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new AsyncTask<Void, Void, Void>() {
+						onlineTournaments.child(tournament.getId()).removeValue();
+
+						Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+
+						/*new AsyncTask<Void, Void, Void>() {
 							@Override
 							protected Void doInBackground(Void... voids) {
 								tournamentViewModel.delete(tournament);
@@ -88,7 +100,7 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 							protected void onPostExecute(Void aVoid) {
 								Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
 							}
-						}.execute();
+						}.execute();*/
 					}
 				})
 				.setNegativeButton("No", null)
@@ -96,8 +108,17 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 	}
 
 	@Override
-	public void onTournamentStarClicked(final Tournament tournament) {
-		new AsyncTask<Void, Void, Void>() {
+	public void onTournamentStarClicked(Tournament tournament) {
+		onlineTournaments.child(tournament.getId()).child("favorite").setValue(tournament.getFavorite());
+
+		if(tournament.getFavorite()) {
+			Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+		}
+
+		/*new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... voids) {
 				tournamentViewModel.update(tournament);
@@ -113,6 +134,6 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 					Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
 				}
 			}
-		}.execute();
+		}.execute();*/
 	}
 }

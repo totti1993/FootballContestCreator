@@ -1,20 +1,21 @@
 package com.totti.footballcontestcreator.database;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "teams", indices = {@Index(value = "name", unique = true)})
 public class Team {
 
 	@ColumnInfo(name = "id")
-	@PrimaryKey(autoGenerate = true)
-	private long id;
+	@PrimaryKey
+	@NonNull
+	private String id;
 
 	@ColumnInfo(name = "name")
-	@NonNull
 	private String name;
 
 	@ColumnInfo(name = "trophies")
@@ -38,7 +39,13 @@ public class Team {
 	@ColumnInfo(name = "selected")
 	private boolean selected;
 
-	public Team(@NonNull String name, String comments) {
+	@Ignore
+	public Team() {
+		// Default constructor required for DataSnapshot.getValue(Team.class)
+	}
+
+	public Team(@NonNull String id, String name, String comments) {
+		this.id = id;
 		this.name = name;
 		this.trophies = 0;
 		this.all_time_wins = 0;
@@ -49,20 +56,20 @@ public class Team {
 		this.selected = false;
 	}
 
-	public long getId() {
+	@NonNull
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(long id) {
+	public void setId(@NonNull String id) {
 		this.id = id;
 	}
 
-	@NonNull
 	public String getName() {
 		return this.name;
 	}
 
-	public void setName(@NonNull String name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 

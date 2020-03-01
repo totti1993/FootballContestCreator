@@ -1,10 +1,11 @@
 package com.totti.footballcontestcreator.database;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
 @Entity(tableName = "rankings",
 		foreignKeys = {@ForeignKey(entity = Tournament.class, parentColumns = "id", childColumns = "tournament_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
@@ -12,21 +13,20 @@ import android.support.annotation.NonNull;
 public class Ranking {
 
 	@ColumnInfo(name = "id")
-	@PrimaryKey(autoGenerate = true)
-	private long id;
+	@PrimaryKey
+	@NonNull
+	private String id;
 
 	@ColumnInfo(name = "tournament_id")
-	private long tournament_id;
+	private String tournament_id;
 
 	@ColumnInfo(name = "tournament_name")
-	@NonNull
 	private String tournament_name;
 
 	@ColumnInfo(name = "team_id")
-	private long team_id;
+	private String team_id;
 
 	@ColumnInfo(name = "team_name")
-	@NonNull
 	private String team_name;
 
 	@ColumnInfo(name = "place")
@@ -59,7 +59,13 @@ public class Ranking {
 	@ColumnInfo(name = "active")
 	private boolean active;
 
-	public Ranking(long tournament_id, @NonNull String tournament_name, long team_id, @NonNull String team_name, int place) {
+	@Ignore
+	public Ranking() {
+		// Default constructor required for DataSnapshot.getValue(Ranking.class)
+	}
+
+	public Ranking(@NonNull String id, String tournament_id, String tournament_name, String team_id, String team_name, int place) {
+		this.id = id;
 		this.tournament_id = tournament_id;
 		this.tournament_name = tournament_name;
 		this.team_id = team_id;
@@ -75,45 +81,44 @@ public class Ranking {
 		this.active = true;
 	}
 
-	public long getId() {
+	@NonNull
+	public String getId() {
 		return this.id;
 	}
 
-	public void setId(long id) {
+	public void setId(@NonNull String id) {
 		this.id = id;
 	}
 
-	public long getTournament_id() {
+	public String getTournament_id() {
 		return this.tournament_id;
 	}
 
-	public void setTournament_id(long tournament_id) {
+	public void setTournament_id(String tournament_id) {
 		this.tournament_id = tournament_id;
 	}
 
-	@NonNull
 	public String getTournament_name() {
 		return this.tournament_name;
 	}
 
-	public void setTournament_name(@NonNull String tournament_name) {
+	public void setTournament_name(String tournament_name) {
 		this.tournament_name = tournament_name;
 	}
 
-	public long getTeam_id() {
+	public String getTeam_id() {
 		return this.team_id;
 	}
 
-	public void setTeam_id(long team_id) {
+	public void setTeam_id(String team_id) {
 		this.team_id = team_id;
 	}
 
-	@NonNull
 	public String getTeam_name() {
 		return this.team_name;
 	}
 
-	public void setTeam_name(@NonNull String team_name) {
+	public void setTeam_name(String team_name) {
 		this.team_name = team_name;
 	}
 

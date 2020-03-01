@@ -1,21 +1,24 @@
 package com.totti.footballcontestcreator.fragments;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.adapters.MatchListAdapter;
@@ -33,7 +36,10 @@ import java.util.Random;
 
 public class MatchListFragment extends Fragment implements MatchListAdapter.OnMatchClickedListener {
 
-	private long id;
+	private String id;
+	private String tournamentType;
+
+	private DatabaseReference onlineMatches;
 
 	private MatchViewModel matchViewModel;
 
@@ -42,10 +48,12 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.match_list_fragment, container, false);
 
-		id = this.getArguments().getLong("id");
+		id = this.getArguments().getString("id");
+		tournamentType = this.getArguments().getString("tournamentType");
 		String type = this.getArguments().getString("type");
-		String tournamentType = this.getArguments().getString("tournamentType");
 		String tab = this.getArguments().getString("tab");
+
+		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
 
 		final MatchListAdapter matchListAdapter = new MatchListAdapter(this);
 
@@ -75,10 +83,35 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 						@Override
 						public void onChanged(@Nullable List<Match> matches) {
 							matchListAdapter.setMatches(matches);
+
+							if(matches.isEmpty() && tournamentType.equals("Elimination")) {
+								final RankingViewModel rankingViewModel = ViewModelProviders.of(getActivity()).get(RankingViewModel.class);
+								new AsyncTask<Void, Void, List<Ranking>>() {
+									@Override
+									protected List<Ranking> doInBackground(Void... voids) {
+										return rankingViewModel.getAllActiveRankingsByTournamentAsync(id);
+									}
+
+									@Override
+									protected void onPostExecute(final List<Ranking> rankings) {
+										if(rankings.size() > 1) {
+											new AlertDialog.Builder(getContext()).setMessage("All matches finished in this round!\nReady to generate the next round?")
+													.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+														@Override
+														public void onClick(DialogInterface dialog, int which) {
+															generateNextRound(rankings);
+														}
+													})
+													.setNegativeButton("No", null)
+													.show();
+										}
+									}
+								}.execute();
+							}
 						}
 					});
 
-					if(tournamentType.equals("Elimination")) {
+					/*if(tournamentType.equals("Elimination")) {
 						new AsyncTask<Void, Void, List<Match>>() {
 							@Override
 							protected List<Match> doInBackground(Void... voids) {
@@ -113,7 +146,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 								}
 							}
 						}.execute();
-					}
+					}*/
 				}
 				else if(tab.equals("results")) {
 					matchViewModel.getAllMatchesByTournamentAndFinalScore(id, true).observe(this, new Observer<List<Match>>() {
@@ -139,8 +172,9 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 	@Override
 	public void onMatchClicked(Match match) {
 		Bundle args = new Bundle();
-		args.putLong("id", match.getId());
-		args.putLong("tournament_id", match.getTournament_id());
+		args.putString("id", match.getId());
+
+		/*args.putLong("tournament_id", match.getTournament_id());
 		args.putString("tournament_name", match.getTournament_name());
 		args.putInt("match_day", match.getMatch_day());
 		args.putLong("home_id", match.getHome_id());
@@ -150,7 +184,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 		args.putString("visitor_name", match.getVisitor_name());
 		args.putInt("visitor_score", match.getVisitor_score());
 		args.putString("comments", match.getComments());
-		args.putBoolean("final_score", match.getFinal_score());
+		args.putBoolean("final_score", match.getFinal_score());*/
 
 		if(match.getFinal_score()) {
 			ResultDetailsDialogFragment resultDetailsDialogFragment = new ResultDetailsDialogFragment();
@@ -169,7 +203,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 
 		int numberOfMatches = rankings.size() / 2;
 
-		final Random rand = new Random();
+		Random rand = new Random();
 		for(int i = 0; i < numberOfMatches; i++) {
 			Ranking firstRanking = rankings.get(rand.nextInt(rankings.size()));
 			rankings.remove(firstRanking);
@@ -205,31 +239,40 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 				new AsyncTask<Void, Void, Tournament>() {
 					@Override
 					protected Tournament doInBackground(Void... voids) {
-						return tournamentViewModel.getTournamentById(id);
+						return tournamentViewModel.getTournamentByIdAsync(id);
 					}
 
 					@Override
-					protected void onPostExecute(final Tournament tournament) {
+					protected void onPostExecute(Tournament tournament) {
 						for(int i = 1; i <= tournament.getRounds(); i++) {
-							for(final ArrayList<Ranking> match : pairs) {
+							for(ArrayList<Ranking> pair : pairs) {
+								String matchId = onlineMatches.push().getKey();
+								Match newMatch;
+
 								if(i % 2 != 0) {
-									new AsyncTask<Integer, Void, Void>() {
+									newMatch = new Match(matchId, tournament.getId(), tournament.getName(), matchDay + i, pair.get(0).getTeam_id(), pair.get(0).getTeam_name(), pair.get(1).getTeam_id(), pair.get(1).getTeam_name());
+
+									/*new AsyncTask<Integer, Void, Void>() {
 										@Override
 										protected Void doInBackground(Integer... day) {
 											matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), matchDay + day[0], match.get(0).getTeam_id(), match.get(0).getTeam_name(), match.get(1).getTeam_id(), match.get(1).getTeam_name()));
 											return null;
 										}
-									}.execute(i);
+									}.execute(i);*/
 								}
 								else {
-									new AsyncTask<Integer, Void, Void>() {
+									newMatch = new Match(matchId, tournament.getId(), tournament.getName(), matchDay + i, pair.get(1).getTeam_id(), pair.get(1).getTeam_name(), pair.get(0).getTeam_id(), pair.get(0).getTeam_name());
+
+									/*new AsyncTask<Integer, Void, Void>() {
 										@Override
 										protected Void doInBackground(Integer... day) {
 											matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), matchDay + day[0], match.get(1).getTeam_id(), match.get(1).getTeam_name(), match.get(0).getTeam_id(), match.get(0).getTeam_name()));
 											return null;
 										}
-									}.execute(i);
+									}.execute(i);*/
 								}
+
+								onlineMatches.child(matchId).setValue(newMatch);
 							}
 						}
 					}
