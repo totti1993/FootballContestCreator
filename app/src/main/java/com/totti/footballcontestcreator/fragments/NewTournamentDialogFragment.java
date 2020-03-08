@@ -1,37 +1,33 @@
 package com.totti.footballcontestcreator.fragments;
 
 import android.app.Dialog;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.adapters.TeamSelectionListAdapter;
 import com.totti.footballcontestcreator.database.Match;
 import com.totti.footballcontestcreator.database.Ranking;
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.database.Tournament;
-import com.totti.footballcontestcreator.viewmodels.MatchViewModel;
-import com.totti.footballcontestcreator.viewmodels.RankingViewModel;
+import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
-import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,24 +50,20 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 	private DatabaseReference onlineTeams;
 	private DatabaseReference onlineTournaments;
 
-	private MatchViewModel matchViewModel;
-	private RankingViewModel rankingViewModel;
 	private TeamViewModel teamViewModel;
-	private TournamentViewModel tournamentViewModel;
 
 	private TeamSelectionListAdapter teamSelectionListAdapter;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
 		onlineRankings = FirebaseDatabase.getInstance().getReference("rankings");
 		onlineTeams = FirebaseDatabase.getInstance().getReference("teams");
 		onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
-		matchViewModel = ViewModelProviders.of(getActivity()).get(MatchViewModel.class);
-		rankingViewModel = ViewModelProviders.of(getActivity()).get(RankingViewModel.class);
-		teamViewModel = ViewModelProviders.of(getActivity()).get(TeamViewModel.class);
-		tournamentViewModel = ViewModelProviders.of(getActivity()).get(TournamentViewModel.class);
+
+		teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
 	}
 
 	@NonNull
@@ -84,34 +76,14 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 					@Override
 					public void onClick(DialogInterface dialogInterface, int i) {
 						if(isValid()) {
-							//final Tournament tournament = getTournament();
-
 							Tournament tournament = createTournament();
 
 							onlineTournaments.child(tournament.getId()).setValue(tournament);
 
 							createMatchesAndRankings(tournament);
-
-							/*new AsyncTask<Void, Void, Long>() {
-								@Override
-								protected Long doInBackground(Void... voids) {
-									return new Long(tournamentViewModel.insert(tournament));
-								}
-
-								@Override
-								protected void onPostExecute(Long id) {
-									if(id != -1) {
-										tournament.setId(id);
-										createMatchesAndRankings(tournament);
-									}
-									else {
-										Toast.makeText(getContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
-									}
-								}
-							}.execute();*/
 						}
 						else {
-							Toast.makeText(getContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
+							Toast.makeText(requireContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
 						}
 					}
 				})
@@ -120,7 +92,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 	}
 
 	private View getContentView() {
-		View contentView = LayoutInflater.from(getContext()).inflate(R.layout.new_tournament_dialog_fragment, null);
+		View contentView = LayoutInflater.from(requireContext()).inflate(R.layout.new_tournament_dialog_fragment, null);
 
 		nameEditText = contentView.findViewById(R.id.tournament_name_editText);
 
@@ -143,15 +115,9 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 				teamSelectionListAdapter.setTeams(teams);
 			}
 		}.execute();
-		/*teamViewModel.getAllTeams().observe(this, new Observer<List<Team>>() {
-			@Override
-			public void onChanged(@Nullable List<Team> teams) {
-				teamSelectionListAdapter.setTeams(teams);
-			}
-		});*/
 
 		teamsRecyclerView = contentView.findViewById(R.id.tournament_teams_recyclerView);
-		teamsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+		teamsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 		teamsRecyclerView.setAdapter(teamSelectionListAdapter);
 
 		commentsEditText = contentView.findViewById(R.id.tournament_comments_editText);
@@ -224,14 +190,6 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 				String id = onlineRankings.push().getKey();
 				Ranking ranking = new Ranking(id, tournament.getId(), tournament.getName(), team.getId(), team.getName(), teams.indexOf(team) + 1);
 				onlineRankings.child(ranking.getId()).setValue(ranking);
-
-				/*new AsyncTask<ArrayList<Team>, Void, Void>() {
-					@Override
-					protected Void doInBackground(ArrayList<Team>... teams) {
-						rankingViewModel.insert(new Ranking(tournament.getId(), tournament.getName(), team.getId(), team.getName(), teams[0].indexOf(team) + 1));
-						return null;
-					}
-				}.execute(teams);*/
 			}
 		}
 
@@ -256,25 +214,9 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 
 						if(i % 2 != 0) {
 							newMatch = new Match(id, tournament.getId(), tournament.getName(), day, pair.get(0).getId(), pair.get(0).getName(), pair.get(1).getId(), pair.get(1).getName());
-
-							/*new AsyncTask<Integer, Void, Void>() {
-								@Override
-								protected Void doInBackground(Integer... day) {
-									matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(0).getId(), match.get(0).getName(), match.get(1).getId(), match.get(1).getName()));
-									return null;
-								}
-							}.execute(day);*/
 						}
 						else {
 							newMatch = new Match(id, tournament.getId(), tournament.getName(), day, pair.get(1).getId(), pair.get(1).getName(), pair.get(0).getId(), pair.get(0).getName());
-
-							/*new AsyncTask<Integer, Void, Void>() {
-								@Override
-								protected Void doInBackground(Integer... day) {
-									matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(1).getId(), match.get(1).getName(), match.get(0).getId(), match.get(0).getName()));
-									return null;
-								}
-							}.execute(day);*/
 						}
 
 						onlineMatches.child(id).setValue(newMatch);
@@ -291,25 +233,9 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 
 					if(i % 2 != 0) {
 						newMatch = new Match(id, tournament.getId(), tournament.getName(), i, pair.get(0).getId(), pair.get(0).getName(), pair.get(1).getId(), pair.get(1).getName());
-
-						/*new AsyncTask<Integer, Void, Void>() {
-							@Override
-							protected Void doInBackground(Integer... day) {
-								matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(0).getId(), match.get(0).getName(), match.get(1).getId(), match.get(1).getName()));
-								return null;
-							}
-						}.execute(j);*/
 					}
 					else {
 						newMatch = new Match(id, tournament.getId(), tournament.getName(), i, pair.get(1).getId(), pair.get(1).getName(), pair.get(0).getId(), pair.get(0).getName());
-
-						/*new AsyncTask<Integer, Void, Void>() {
-							@Override
-							protected Void doInBackground(Integer... day) {
-								matchViewModel.insert(new Match(tournament.getId(), tournament.getName(), day[0], match.get(1).getId(), match.get(1).getName(), match.get(0).getId(), match.get(0).getName()));
-								return null;
-							}
-						}.execute(j);*/
 					}
 
 					onlineMatches.child(id).setValue(newMatch);
@@ -317,21 +243,13 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 			}
 		}
 
-		Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" created with " + tournament.getTeams() + " teams!", Toast.LENGTH_SHORT).show();
+		Toast.makeText(requireContext(), "Tournament \"" + tournament.getName() + "\" created with " + tournament.getTeams() + " teams!", Toast.LENGTH_SHORT).show();
 
 		for(Team team : teamSelectionListAdapter.getTeams()) {
 			if(team.getSelected()) {
 				team.setSelected(false);
 
 				onlineTeams.child(team.getId()).child("selected").setValue(team.getSelected());
-
-				/*new AsyncTask<Void, Void, Void>() {
-					@Override
-					protected Void doInBackground(Void... voids) {
-						teamViewModel.update(team);
-						return null;
-					}
-				}.execute();*/
 			}
 		}
 	}
@@ -456,13 +374,5 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 	@Override
 	public void onCheckBoxClicked(Team team) {
 		onlineTeams.child(team.getId()).child("selected").setValue(team.getSelected());
-
-		/*new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... voids) {
-				teamViewModel.update(team);
-				return null;
-			}
-		}.execute();*/
 	}
 }

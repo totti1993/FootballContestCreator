@@ -2,8 +2,6 @@ package com.totti.footballcontestcreator.viewmodels;
 
 import android.app.Application;
 import android.os.AsyncTask;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
@@ -23,18 +21,16 @@ import java.util.List;
 public class MatchViewModel extends AndroidViewModel {
 
 	private AppDatabase appDatabase;
-	private DatabaseReference onlineMatches;
 
 	public MatchViewModel(Application application) {
 		super(application);
 
 		appDatabase = AppDatabase.getDatabase(application);
 
-		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
+		DatabaseReference onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
 		onlineMatches.addChildEventListener(new ChildEventListener() {
 			@Override
 			public void onChildAdded(@NonNull final DataSnapshot match, @Nullable String s) {
-				Log.d("asd", "onChildAdded called on Match");
 				new AsyncTask<Void, Void, Void>() {
 					@Override
 					protected Void doInBackground(Void... voids) {
@@ -46,7 +42,6 @@ public class MatchViewModel extends AndroidViewModel {
 
 			@Override
 			public void onChildChanged(@NonNull final DataSnapshot match, @Nullable String s) {
-				Log.d("asd", "onChildChanged called on Match");
 				new AsyncTask<Void, Void, Void>() {
 					@Override
 					protected Void doInBackground(Void... voids) {
@@ -58,7 +53,6 @@ public class MatchViewModel extends AndroidViewModel {
 
 			@Override
 			public void onChildRemoved(@NonNull final DataSnapshot match) {
-				Log.d("asd", "onChildRemoved called on Match");
 				new AsyncTask<Void, Void, Void>() {
 					@Override
 					protected Void doInBackground(Void... voids) {

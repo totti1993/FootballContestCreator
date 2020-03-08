@@ -2,8 +2,6 @@ package com.totti.footballcontestcreator.viewmodels;
 
 import android.app.Application;
 import android.os.AsyncTask;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
@@ -23,18 +21,16 @@ import java.util.List;
 public class TournamentViewModel extends AndroidViewModel {
 
 	private AppDatabase appDatabase;
-	private DatabaseReference onlineTournaments;
 
 	public TournamentViewModel(Application application) {
 		super(application);
 
 		appDatabase = AppDatabase.getDatabase(application);
 
-		onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
+		DatabaseReference onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
 		onlineTournaments.addChildEventListener(new ChildEventListener() {
 			@Override
 			public void onChildAdded(@NonNull final DataSnapshot tournament, @Nullable String s) {
-				Log.d("asd", "onChildAdded called on Tournament");
 				new AsyncTask<Void, Void, Void>() {
 					@Override
 					protected Void doInBackground(Void... voids) {
@@ -46,7 +42,6 @@ public class TournamentViewModel extends AndroidViewModel {
 
 			@Override
 			public void onChildChanged(@NonNull final DataSnapshot tournament, @Nullable String s) {
-				Log.d("asd", "onChildChanged called on Tournament");
 				new AsyncTask<Void, Void, Void>() {
 					@Override
 					protected Void doInBackground(Void... voids) {
@@ -58,7 +53,6 @@ public class TournamentViewModel extends AndroidViewModel {
 
 			@Override
 			public void onChildRemoved(@NonNull final DataSnapshot tournament) {
-				Log.d("asd", "onChildRemoved called on Tournament");
 				new AsyncTask<Void, Void, Void>() {
 					@Override
 					protected Void doInBackground(Void... voids) {

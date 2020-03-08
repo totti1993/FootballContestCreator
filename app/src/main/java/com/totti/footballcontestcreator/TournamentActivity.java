@@ -1,17 +1,16 @@
 package com.totti.footballcontestcreator;
 
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import androidx.annotation.NonNull;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.totti.footballcontestcreator.database.Tournament;
 import com.totti.footballcontestcreator.fragments.CommentsFragment;
@@ -45,25 +44,13 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 		navigationView.setSelectedItemId(R.id.tournament_nav_table);
 		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
-		TournamentViewModel tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
+		TournamentViewModel tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
 		tournamentViewModel.getTournamentById(id).observe(this, new Observer<Tournament>() {
 			@Override
 			public void onChanged(Tournament tournament) {
 				setTitle(tournament.getName());
 			}
 		});
-
-		/*new AsyncTask<Void, Void, Tournament>() {
-			@Override
-			protected Tournament doInBackground(Void... voids) {
-				return tournamentViewModel.getTournamentById(id);
-			}
-
-			@Override
-			protected void onPostExecute(Tournament tournament) {
-				setTitle(tournament.getName());
-			}
-		}.execute();*/
 	}
 
 	@Override

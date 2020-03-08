@@ -1,9 +1,9 @@
 package com.totti.footballcontestcreator.database;
 
+import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import android.content.Context;
 
 @Database(entities = {Match.class, Ranking.class, Team.class, Tournament.class}, version = 28)
 public abstract class AppDatabase extends RoomDatabase {

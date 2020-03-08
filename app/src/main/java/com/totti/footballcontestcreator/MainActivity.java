@@ -1,19 +1,17 @@
 package com.totti.footballcontestcreator;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import androidx.annotation.NonNull;
-import com.google.android.material.navigation.NavigationView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.view.Menu;
-import android.view.MenuItem;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
+import com.google.android.material.navigation.NavigationView;
 
 import com.totti.footballcontestcreator.fragments.TeamListFragment;
 import com.totti.footballcontestcreator.fragments.TournamentListFragment;
@@ -41,10 +39,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		//FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-		matchViewModel= ViewModelProviders.of(this).get(MatchViewModel.class);
-		rankingViewModel = ViewModelProviders.of(this).get(RankingViewModel.class);
-		teamViewModel = ViewModelProviders.of(this).get(TeamViewModel.class);
-		tournamentViewModel = ViewModelProviders.of(this).get(TournamentViewModel.class);
+		matchViewModel= new ViewModelProvider(this).get(MatchViewModel.class);
+		rankingViewModel = new ViewModelProvider(this).get(RankingViewModel.class);
+		teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
+		tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
 
 		new AsyncTask<Void, Void, Void>() {
 			@Override
