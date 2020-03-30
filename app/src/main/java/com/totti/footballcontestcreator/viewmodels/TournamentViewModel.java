@@ -1,8 +1,17 @@
 package com.totti.footballcontestcreator.viewmodels;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
+import android.os.AsyncTask;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import com.totti.footballcontestcreator.database.AppDatabase;
 import com.totti.footballcontestcreator.database.Tournament;
@@ -12,31 +21,80 @@ import java.util.List;
 public class TournamentViewModel extends AndroidViewModel {
 
 	private AppDatabase appDatabase;
-	private LiveData<List<Tournament>> tournamentsOrdered;
 
 	public TournamentViewModel(Application application) {
 		super(application);
+
 		appDatabase = AppDatabase.getDatabase(application);
-		tournamentsOrdered = appDatabase.tournamentDao().findAllTournamentsOrdered();
+
+		DatabaseReference onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
+		onlineTournaments.addChildEventListener(new ChildEventListener() {
+			@Override
+			public void onChildAdded(@NonNull final DataSnapshot tournament, @Nullable String s) {
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						appDatabase.tournamentDao().insert(tournament.getValue(Tournament.class));
+						return null;
+					}
+				}.execute();
+			}
+
+			@Override
+			public void onChildChanged(@NonNull final DataSnapshot tournament, @Nullable String s) {
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						appDatabase.tournamentDao().update(tournament.getValue(Tournament.class));
+						return null;
+					}
+				}.execute();
+			}
+
+			@Override
+			public void onChildRemoved(@NonNull final DataSnapshot tournament) {
+				new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... voids) {
+						appDatabase.tournamentDao().delete(tournament.getValue(Tournament.class));
+						return null;
+					}
+				}.execute();
+			}
+
+			@Override
+			public void onChildMoved(@NonNull DataSnapshot tournament, @Nullable String s) {
+
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+
+			}
+		});
 	}
 
-	public long insert(Tournament tournament) {
-		return appDatabase.tournamentDao().insert(tournament);
+	public void insertAll(List<Tournament> tournaments) {
+		appDatabase.tournamentDao().insertAll(tournaments);
 	}
 
-	public void update(Tournament tournament) {
-		appDatabase.tournamentDao().update(tournament);
-	}
-
-	public void delete(Tournament tournament) {
-		appDatabase.tournamentDao().delete(tournament);
+	public void deleteAll() {
+		appDatabase.tournamentDao().deleteAll();
 	}
 
 	public LiveData<List<Tournament>> getAllTournamentsOrdered() {
-		return tournamentsOrdered;
+		return appDatabase.tournamentDao().findAllTournamentsOrdered();
 	}
 
-	public Tournament getTournamentById(long id) {
+	public LiveData<Tournament> getTournamentById(String id) {
 		return appDatabase.tournamentDao().findTournamentById(id);
+	}
+
+	public Tournament getTournamentByIdAsync(String id) {
+		return appDatabase.tournamentDao().findTournamentByIdAsync(id);
+	}
+
+	public LiveData<String> getCommentsById(String id) {
+		return appDatabase.tournamentDao().findCommentsById(id);
 	}
 }

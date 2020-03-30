@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "213062117378",
+    "firebase_url": "https://football-contest-creator.firebaseio.com",
+    "project_id": "football-contest-creator",
+    "storage_bucket": "football-contest-creator.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213062117378:android:c1e9a287e1125268fc1f1b",
+        "android_client_info": {
+          "package_name": "com.totti.footballcontestcreator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213062117378-qck2hl33d04lkd4oab98hvikp0umh3lp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANJUzGQLRzSO0lWrB5ZADk4Nb-fagL_Q4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213062117378-qck2hl33d04lkd4oab98hvikp0umh3lp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

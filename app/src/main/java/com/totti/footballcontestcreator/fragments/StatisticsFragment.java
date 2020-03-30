@@ -1,22 +1,23 @@
 package com.totti.footballcontestcreator.fragments;
 
-import android.arch.lifecycle.ViewModelProviders;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.totti.footballcontestcreator.R;
+
 import com.totti.footballcontestcreator.database.Team;
+import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 
 import java.util.ArrayList;
@@ -31,20 +32,14 @@ public class StatisticsFragment extends Fragment {
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.statistics_fragment, container, false);
 
-		final long id = this.getArguments().getLong("id");
+		String id = this.getArguments().getString("id");
 
 		statsPieChart = rootView.findViewById(R.id.stats_pieChart);
 
-		final TeamViewModel teamViewModel = ViewModelProviders.of(getActivity()).get(TeamViewModel.class);
-
-		new AsyncTask<Void, Void, Team>() {
+		TeamViewModel teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
+		teamViewModel.getTeamById(id).observe(getViewLifecycleOwner(), new Observer<Team>() {
 			@Override
-			protected Team doInBackground(Void... voids) {
-				return teamViewModel.getTeamById(id);
-			}
-
-			@Override
-			protected void onPostExecute(Team team) {
+			public void onChanged(Team team) {
 				List<PieEntry> entries = new ArrayList<>();
 
 				entries.add(new PieEntry(team.getAll_time_wins(), "Wins"));
@@ -58,7 +53,7 @@ public class StatisticsFragment extends Fragment {
 				statsPieChart.setData(data);
 				statsPieChart.invalidate();
 			}
-		}.execute();
+		});
 
 		return rootView;
 	}

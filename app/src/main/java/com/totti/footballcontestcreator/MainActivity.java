@@ -1,31 +1,64 @@
 package com.totti.footballcontestcreator;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
+import com.google.android.material.navigation.NavigationView;
 
 import com.totti.footballcontestcreator.fragments.TeamListFragment;
 import com.totti.footballcontestcreator.fragments.TournamentListFragment;
+import com.totti.footballcontestcreator.viewmodels.MatchViewModel;
+import com.totti.footballcontestcreator.viewmodels.RankingViewModel;
+import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
+import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 	private DrawerLayout drawer;
 
+	private MatchViewModel matchViewModel;
+	private RankingViewModel rankingViewModel;
+	private TeamViewModel teamViewModel;
+	private TournamentViewModel tournamentViewModel;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		try {
+		/*try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
-		this.setTheme(R.style.AppTheme);
+		}*/
+
+		//FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+		matchViewModel= new ViewModelProvider(this).get(MatchViewModel.class);
+		rankingViewModel = new ViewModelProvider(this).get(RankingViewModel.class);
+		teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
+		tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
+
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... voids) {
+				matchViewModel.deleteAll();
+				rankingViewModel.deleteAll();
+				teamViewModel.deleteAll();
+				tournamentViewModel.deleteAll();
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void aVoid) {
+				setTheme(R.style.AppTheme);
+			}
+		}.execute();
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);

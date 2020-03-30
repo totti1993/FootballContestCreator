@@ -1,11 +1,11 @@
 package com.totti.footballcontestcreator.database;
 
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
 
-@Database(entities = {Match.class, Ranking.class, Team.class, Tournament.class}, version = 26)
+@Database(entities = {Match.class, Ranking.class, Team.class, Tournament.class}, version = 28)
 public abstract class AppDatabase extends RoomDatabase {
 
 	private static AppDatabase INSTANCE;

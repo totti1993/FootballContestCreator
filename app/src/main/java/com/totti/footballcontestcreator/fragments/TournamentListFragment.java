@@ -1,45 +1,49 @@
 package com.totti.footballcontestcreator.fragments;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import com.totti.footballcontestcreator.R;
-import com.totti.footballcontestcreator.TournamentActivity;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import com.totti.footballcontestcreator.adapters.TournamentListAdapter;
 import com.totti.footballcontestcreator.database.Tournament;
+import com.totti.footballcontestcreator.R;
+import com.totti.footballcontestcreator.TournamentActivity;
 import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 import java.util.List;
 
 public class TournamentListFragment extends Fragment implements TournamentListAdapter.OnTournamentClickedListener {
 
-	private TournamentViewModel tournamentViewModel;
+	private DatabaseReference onlineTournaments;
 
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
 
+		onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
+
 		final TournamentListAdapter tournamentListAdapter = new TournamentListAdapter(this);
 
-		tournamentViewModel = ViewModelProviders.of(getActivity()).get(TournamentViewModel.class);
-		tournamentViewModel.getAllTournamentsOrdered().observe(this, new Observer<List<Tournament>>() {
+		TournamentViewModel tournamentViewModel = new ViewModelProvider(requireActivity()).get(TournamentViewModel.class);
+		tournamentViewModel.getAllTournamentsOrdered().observe(getViewLifecycleOwner(), new Observer<List<Tournament>>() {
 			@Override
 			public void onChanged(@Nullable List<Tournament> tournaments) {
 				tournamentListAdapter.setTournaments(tournaments);
@@ -47,7 +51,7 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 		});
 
 		RecyclerView recyclerView = rootView.findViewById(R.id.item_recyclerView);
-		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
 		recyclerView.setLayoutManager(linearLayoutManager);
 		recyclerView.setAdapter(tournamentListAdapter);
 		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
@@ -57,7 +61,7 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				new NewTournamentDialogFragment().show(getActivity().getSupportFragmentManager(), NewTournamentDialogFragment.TAG);
+				new NewTournamentDialogFragment().show(requireActivity().getSupportFragmentManager(), NewTournamentDialogFragment.TAG);
 			}
 		});
 
@@ -66,29 +70,21 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 
 	@Override
 	public void onTournamentClicked(Tournament tournament) {
-		Intent intent = new Intent(getActivity(), TournamentActivity.class);
+		Intent intent = new Intent(requireActivity(), TournamentActivity.class);
 		intent.putExtra("id", tournament.getId());
+		intent.putExtra("tournamentType", tournament.getType());
 		startActivity(intent);
 	}
 
 	@Override
 	public void onTournamentLongClicked(final Tournament tournament) {
-		new AlertDialog.Builder(getContext()).setMessage("Are you sure you want to delete tournament \"" + tournament.getName() + "\"?")
+		new AlertDialog.Builder(requireContext()).setMessage("Are you sure you want to delete tournament \"" + tournament.getName() + "\"?")
 				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new AsyncTask<Void, Void, Void>() {
-							@Override
-							protected Void doInBackground(Void... voids) {
-								tournamentViewModel.delete(tournament);
-								return null;
-							}
+						onlineTournaments.child(tournament.getId()).removeValue();
 
-							@Override
-							protected void onPostExecute(Void aVoid) {
-								Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
-							}
-						}.execute();
+						Toast.makeText(requireContext(), "Tournament \"" + tournament.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
 					}
 				})
 				.setNegativeButton("No", null)
@@ -96,23 +92,14 @@ public class TournamentListFragment extends Fragment implements TournamentListAd
 	}
 
 	@Override
-	public void onTournamentStarClicked(final Tournament tournament) {
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... voids) {
-				tournamentViewModel.update(tournament);
-				return null;
-			}
+	public void onTournamentStarClicked(Tournament tournament) {
+		onlineTournaments.child(tournament.getId()).child("favorite").setValue(tournament.getFavorite());
 
-			@Override
-			protected void onPostExecute(Void aVoid) {
-				if(tournament.getFavorite()) {
-					Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
-				}
-				else {
-					Toast.makeText(getContext(), "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
-				}
-			}
-		}.execute();
+		if(tournament.getFavorite()) {
+			Toast.makeText(requireContext(), "Tournament \"" + tournament.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+		}
+		else {
+			Toast.makeText(requireContext(), "Tournament \"" + tournament.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+		}
 	}
 }
