@@ -98,6 +98,18 @@ public class RankingViewModel extends AndroidViewModel {
 		return appDatabase.rankingDao().findAllRankingsByTeam(team_id);
 	}
 
+	public List<Ranking> getAllRankingsByTeamAsync(String team_id) {
+		return appDatabase.rankingDao().findAllRankingsByTeamAsync(team_id);
+	}
+
+	public LiveData<List<Ranking>> getAllRankingsByTournament(String tournament_id) {
+		return appDatabase.rankingDao().findAllRankingsByTournament(tournament_id);
+	}
+
+	public List<Ranking> getAllRankingsByTournamentAsync(String tournament_id) {
+		return appDatabase.rankingDao().findAllRankingsByTournamentAsync(tournament_id);
+	}
+
 	public Ranking getRankingById(String id) {
 		return appDatabase.rankingDao().findRankingById(id);
 	}

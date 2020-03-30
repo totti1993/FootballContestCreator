@@ -4,8 +4,14 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,17 +37,29 @@ import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class MatchListFragment extends Fragment implements MatchListAdapter.OnMatchClickedListener {
 
 	private String id;
 	private String tournamentType;
+	private String type;
+	private String tab;
 
 	private DatabaseReference onlineMatches;
 
+	private MatchListAdapter matchListAdapter;
+
 	private MatchViewModel matchViewModel;
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
 
 	@Nullable
 	@Override
@@ -50,77 +68,14 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 
 		id = this.getArguments().getString("id");
 		tournamentType = this.getArguments().getString("tournamentType");
-		String type = this.getArguments().getString("type");
-		String tab = this.getArguments().getString("tab");
+		type = this.getArguments().getString("type");
+		tab = this.getArguments().getString("tab");
 
 		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
 
-		final MatchListAdapter matchListAdapter = new MatchListAdapter(this);
+		matchListAdapter = new MatchListAdapter(this);
 
 		matchViewModel = new ViewModelProvider(requireActivity()).get(MatchViewModel.class);
-		if(type != null && tab != null && tournamentType != null) {
-			if(type.equals("team")) {
-				if(tab.equals("matches")) {
-					matchViewModel.getAllMatchesByTeamAndFinalScore(id, false).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
-						@Override
-						public void onChanged(@Nullable List<Match> matches) {
-							matchListAdapter.setMatches(matches);
-						}
-					});
-				}
-				else if(tab.equals("results")) {
-					matchViewModel.getAllMatchesByTeamAndFinalScore(id, true).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
-						@Override
-						public void onChanged(@Nullable List<Match> matches) {
-							matchListAdapter.setMatches(matches);
-						}
-					});
-				}
-			}
-			else if(type.equals("tournament")) {
-				if(tab.equals("matches")) {
-					matchViewModel.getAllMatchesByTournamentAndFinalScore(id, false).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
-						@Override
-						public void onChanged(@Nullable List<Match> matches) {
-							matchListAdapter.setMatches(matches);
-
-							if(matches.isEmpty() && tournamentType.equals("Elimination")) {
-								final RankingViewModel rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
-								new AsyncTask<Void, Void, List<Ranking>>() {
-									@Override
-									protected List<Ranking> doInBackground(Void... voids) {
-										return rankingViewModel.getAllActiveRankingsByTournamentAsync(id);
-									}
-
-									@Override
-									protected void onPostExecute(final List<Ranking> rankings) {
-										if(rankings.size() > 1) {
-											new AlertDialog.Builder(requireContext()).setMessage("All matches finished in this round!\nReady to generate the next round?")
-													.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-														@Override
-														public void onClick(DialogInterface dialog, int which) {
-															generateNextRound(rankings);
-														}
-													})
-													.setNegativeButton("No", null)
-													.show();
-										}
-									}
-								}.execute();
-							}
-						}
-					});
-				}
-				else if(tab.equals("results")) {
-					matchViewModel.getAllMatchesByTournamentAndFinalScore(id, true).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
-						@Override
-						public void onChanged(@Nullable List<Match> matches) {
-							matchListAdapter.setMatches(matches);
-						}
-					});
-				}
-			}
-		}
 
 		RecyclerView recyclerView = rootView.findViewById(R.id.match_recyclerView);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
@@ -130,6 +85,160 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 		recyclerView.addItemDecoration(dividerItemDecoration);
 
 		return rootView;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.shared_action_bar, menu);
+
+		MenuItem item = menu.findItem(R.id.action_spinner_filter);
+		Spinner spinner = (Spinner) item.getActionView();
+
+		final ArrayList<String> items = new ArrayList<>();
+		if(type.equals("team")) {
+			items.add("Tournaments");
+		}
+		else if(type.equals("tournament")) {
+			items.add("Teams");
+		}
+
+		final ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, items);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+
+		final Map<String, String> validItemIds = new HashMap<>();
+
+		RankingViewModel rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
+		if(type.equals("team")) {
+			rankingViewModel.getAllRankingsByTeam(id).observe(this, new Observer<List<Ranking>>() {
+				@Override
+				public void onChanged(List<Ranking> rankings) {
+					validItemIds.clear();
+					for(Ranking ranking: rankings) {
+						validItemIds.put(ranking.getTournament_name(), ranking.getTournament_id());
+					}
+
+					items.clear();
+					items.add("All tournaments");
+					for(Ranking ranking: rankings) {
+						items.add(ranking.getTournament_name());
+					}
+					adapter.notifyDataSetChanged();
+				}
+			});
+		}
+		else if(type.equals("tournament")) {
+			rankingViewModel.getAllRankingsByTournament(id).observe(this, new Observer<List<Ranking>>() {
+				@Override
+				public void onChanged(List<Ranking> rankings) {
+					validItemIds.clear();
+					for(Ranking ranking: rankings) {
+						validItemIds.put(ranking.getTeam_name(), ranking.getTeam_id());
+					}
+
+					items.clear();
+					items.add("All teams");
+					for(Ranking ranking: rankings) {
+						items.add(ranking.getTeam_name());
+					}
+					adapter.notifyDataSetChanged();
+				}
+			});
+		}
+
+		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id_number) {
+				String validItemId = validItemIds.get(parent.getItemAtPosition(position).toString());
+
+				if(type != null && tab != null && tournamentType != null) {
+					if(type.equals("team")) {
+						if(tab.equals("matches")) {
+							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(id, validItemId, false).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
+								@Override
+								public void onChanged(@Nullable List<Match> matches) {
+									matchListAdapter.setMatches(matches);
+								}
+							});
+						}
+						else if(tab.equals("results")) {
+							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(id, validItemId, true).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
+								@Override
+								public void onChanged(@Nullable List<Match> matches) {
+									matchListAdapter.setMatches(matches);
+								}
+							});
+						}
+					}
+					else if(type.equals("tournament")) {
+						if(tab.equals("matches")) {
+							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(validItemId, id, false).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
+								@Override
+								public void onChanged(@Nullable List<Match> matches) {
+									matchListAdapter.setMatches(matches);
+
+									if(tournamentType.equals("Elimination")) {
+										new AsyncTask<Void, Void, List<Match>>() {
+											@Override
+											protected List<Match> doInBackground(Void... voids) {
+												return matchViewModel.getAllMatchesByTournamentAndFinalScoreAsync(id, false);
+											}
+
+											@Override
+											protected void onPostExecute(List<Match> matches) {
+												if(matches.isEmpty()) {
+													final RankingViewModel rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
+													new AsyncTask<Void, Void, List<Ranking>>() {
+														@Override
+														protected List<Ranking> doInBackground(Void... voids) {
+															return rankingViewModel.getAllActiveRankingsByTournamentAsync(id);
+														}
+
+														@Override
+														protected void onPostExecute(final List<Ranking> rankings) {
+															if(rankings.size() > 1) {
+																new AlertDialog.Builder(requireContext()).setMessage("All matches finished in this round!\nReady to generate the next round?")
+																		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+																			@Override
+																			public void onClick(DialogInterface dialog, int which) {
+																				generateNextRound(rankings);
+																			}
+																		})
+																		.setNegativeButton("No", null)
+																		.show();
+															}
+														}
+													}.execute();
+												}
+											}
+										}.execute();
+									}
+								}
+							});
+						}
+						else if(tab.equals("results")) {
+							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(validItemId, id, true).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
+								@Override
+								public void onChanged(@Nullable List<Match> matches) {
+									matchListAdapter.setMatches(matches);
+								}
+							});
+						}
+					}
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
+			}
+		});
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

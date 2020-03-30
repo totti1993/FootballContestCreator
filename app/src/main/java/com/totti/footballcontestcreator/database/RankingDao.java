@@ -37,8 +37,17 @@ public interface RankingDao {
 	@Query("SELECT * FROM rankings WHERE tournament_id LIKE :tournament_id AND team_id LIKE :team_id LIMIT 1")
 	Ranking findRankingByTournamentAndTeamAsync(String tournament_id, String team_id);
 
-	@Query("SELECT * FROM rankings WHERE team_id LIKE :team_id")
+	@Query("SELECT * FROM rankings WHERE team_id LIKE :team_id ORDER BY tournament_name ASC")
 	LiveData<List<Ranking>> findAllRankingsByTeam(String team_id);
+
+	@Query("SELECT * FROM rankings WHERE team_id LIKE :team_id ORDER BY tournament_name ASC")
+	List<Ranking> findAllRankingsByTeamAsync(String team_id);
+
+	@Query("SELECT * FROM rankings WHERE tournament_id LIKE :tournament_id ORDER BY team_name ASC")
+	LiveData<List<Ranking>> findAllRankingsByTournament(String tournament_id);
+
+	@Query("SELECT * FROM rankings WHERE tournament_id LIKE :tournament_id ORDER BY team_name ASC")
+	List<Ranking> findAllRankingsByTournamentAsync(String tournament_id);
 
 	@Query("SELECT * FROM rankings WHERE id LIKE :id LIMIT 1")
 	Ranking findRankingById(String id);

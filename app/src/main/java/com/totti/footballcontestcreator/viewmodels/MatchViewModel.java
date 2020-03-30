@@ -82,16 +82,36 @@ public class MatchViewModel extends AndroidViewModel {
 		appDatabase.matchDao().deleteAll();
 	}
 
-	public LiveData<List<Match>> getAllMatchesByTeamAndFinalScore(String team_id, boolean final_score) {
-		return appDatabase.matchDao().findAllMatchesByTeamAndFinalScore(team_id, final_score);
-	}
-
-	public LiveData<List<Match>> getAllMatchesByTournamentAndFinalScore(String tournament_id, boolean final_score) {
-		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScore(tournament_id, final_score);
+	public LiveData<List<Match>> getAllMatchesByTeamTournamentAndFinalScore(String team_id, String tournament_id, boolean final_score) {
+		if(team_id != null) {
+			if(tournament_id == null) {
+				return appDatabase.matchDao().findAllMatchesByTeamAndFinalScore(team_id, final_score);
+			}
+			else {
+				return appDatabase.matchDao().findAllMatchesByTeamTournamentAndFinalScore(team_id, tournament_id, final_score);
+			}
+		}
+		else{
+			if(tournament_id == null) {
+				// never reaching this condition
+				return null;
+			}
+			else {
+				return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScore(tournament_id, final_score);
+			}
+		}
 	}
 
 	public List<Match> getAllMatchesByTournamentAndFinalScoreAsync(String tournament_id, boolean final_score) {
 		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScoreAsync(tournament_id, final_score);
+	}
+
+	public List<Match> getAllMatchesByTeamAsync(String team_id) {
+		return appDatabase.matchDao().findAllMatchesByTeamAsync(team_id);
+	}
+
+	public List<Match> getAllMatchesByTournamentAsync(String tournament_id) {
+		return appDatabase.matchDao().findAllMatchesByTournamentAsync(tournament_id);
 	}
 
 	public Match getMatchByTournamentAndTeamsInEliminationAsync(String tournament_id, String home_id, String visitor_id) {

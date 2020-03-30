@@ -13,6 +13,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.navigation.NavigationView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import com.totti.footballcontestcreator.fragments.TeamListFragment;
 import com.totti.footballcontestcreator.fragments.TournamentListFragment;
 import com.totti.footballcontestcreator.viewmodels.MatchViewModel;
@@ -23,6 +29,8 @@ import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 	private DrawerLayout drawer;
+
+	private boolean connected;
 
 	private MatchViewModel matchViewModel;
 	private RankingViewModel rankingViewModel;
@@ -37,29 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			e.printStackTrace();
 		}*/
 
-		//FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
-		matchViewModel= new ViewModelProvider(this).get(MatchViewModel.class);
-		rankingViewModel = new ViewModelProvider(this).get(RankingViewModel.class);
-		teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
-		tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
-
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... voids) {
-				matchViewModel.deleteAll();
-				rankingViewModel.deleteAll();
-				teamViewModel.deleteAll();
-				tournamentViewModel.deleteAll();
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void aVoid) {
-				setTheme(R.style.AppTheme);
-			}
-		}.execute();
-
+		setTheme(R.style.AppTheme);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -75,6 +61,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		navigationView.setNavigationItemSelectedListener(this);
 		navigationView.setCheckedItem(R.id.nav_tournaments);
 		onNavigationItemSelected(navigationView.getMenu().getItem(0));
+
+		DatabaseReference onlineConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
+		onlineConnected.addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+				connected = dataSnapshot.getValue(Boolean.class);
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError databaseError) {
+
+			}
+		});
+
+		matchViewModel= new ViewModelProvider(this).get(MatchViewModel.class);
+		rankingViewModel = new ViewModelProvider(this).get(RankingViewModel.class);
+		teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
+		tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
+
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... voids) {
+				if(connected) {
+					matchViewModel.deleteAll();
+					rankingViewModel.deleteAll();
+					teamViewModel.deleteAll();
+					tournamentViewModel.deleteAll();
+				}
+
+				return null;
+			}
+		}.execute();
 	}
 
 	@Override
@@ -86,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			super.onBackPressed();
 		}
 	}
-
+/*
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main_action_bar, menu);
@@ -101,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		return super.onOptionsItemSelected(item);
 	}
-
+*/
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 		int id = menuItem.getItemId();
