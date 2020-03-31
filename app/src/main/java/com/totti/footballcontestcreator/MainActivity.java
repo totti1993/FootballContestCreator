@@ -30,8 +30,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 	private DrawerLayout drawer;
 
-	private boolean connected;
-
 	private MatchViewModel matchViewModel;
 	private RankingViewModel rankingViewModel;
 	private TeamViewModel teamViewModel;
@@ -62,11 +60,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		navigationView.setCheckedItem(R.id.nav_tournaments);
 		onNavigationItemSelected(navigationView.getMenu().getItem(0));
 
+		matchViewModel= new ViewModelProvider(this).get(MatchViewModel.class);
+		rankingViewModel = new ViewModelProvider(this).get(RankingViewModel.class);
+		teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
+		tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
+
 		DatabaseReference onlineConnected = FirebaseDatabase.getInstance().getReference(".info/connected");
 		onlineConnected.addValueEventListener(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-				connected = dataSnapshot.getValue(Boolean.class);
+				boolean connected = dataSnapshot.getValue(Boolean.class);
+
+				if(connected) {
+					new AsyncTask<Void, Void, Void>() {
+						@Override
+						protected Void doInBackground(Void... voids) {
+							matchViewModel.deleteAll();
+							rankingViewModel.deleteAll();
+							teamViewModel.deleteAll();
+							tournamentViewModel.deleteAll();
+							return null;
+						}
+					}.execute();
+				}
 			}
 
 			@Override
@@ -74,25 +90,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 			}
 		});
-
-		matchViewModel= new ViewModelProvider(this).get(MatchViewModel.class);
-		rankingViewModel = new ViewModelProvider(this).get(RankingViewModel.class);
-		teamViewModel = new ViewModelProvider(this).get(TeamViewModel.class);
-		tournamentViewModel = new ViewModelProvider(this).get(TournamentViewModel.class);
-
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... voids) {
-				if(connected) {
-					matchViewModel.deleteAll();
-					rankingViewModel.deleteAll();
-					teamViewModel.deleteAll();
-					tournamentViewModel.deleteAll();
-				}
-
-				return null;
-			}
-		}.execute();
 	}
 
 	@Override
