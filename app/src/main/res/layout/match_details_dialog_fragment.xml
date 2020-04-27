@@ -17,6 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:textStyle="bold|italic"
+            android:textColor="@color/colorBlack"
             android:textSize="20sp" />
 
         <TextView
@@ -24,9 +25,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/big_margin"
+            android:layout_marginTop="@dimen/small_margin"
             android:textStyle="italic"
-            android:textSize="18sp" />
+            android:textColor="@color/colorBlack"
+            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -45,6 +47,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/small_margin"
+                android:textColor="@color/colorBlack"
                 android:textSize="20sp"
                 android:singleLine="true"
                 android:ellipsize="end" />
@@ -68,6 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/small_margin"
+                android:textColor="@color/colorBlack"
                 android:textSize="20sp"
                 android:singleLine="true"
                 android:ellipsize="end" />
@@ -90,7 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="@dimen/small_margin">
+            android:layout_marginTop="@dimen/big_margin">
 
             <CheckBox
                 android:id="@+id/match_final_score_checkBox"
@@ -101,7 +105,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/small_margin"
-                android:text="@string/final_score" />
+                android:text="@string/final_score"
+                android:textColor="@color/colorBlack" />
 
         </LinearLayout>
 

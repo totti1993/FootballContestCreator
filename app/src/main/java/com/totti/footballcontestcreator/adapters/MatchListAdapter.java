@@ -15,7 +15,7 @@ import java.util.List;
 
 public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.MatchViewHolder> {
 
-	private List<Match> matches;
+	private ArrayList<Match> matches;       // List to hold all matches of a team or a tournament
 
 	public interface OnMatchClickedListener {
 		void onMatchClicked(Match match);
@@ -47,6 +47,7 @@ public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.Matc
 			matchHomeScoreTextView = matchView.findViewById(R.id.match_home_score_textView);
 			matchVisitorScoreTextView = matchView.findViewById(R.id.match_visitor_score_textView);
 
+			// Listener: Click on a match
 			matchView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -66,7 +67,7 @@ public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.Matc
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull final MatchViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull MatchViewHolder holder, int position) {
 		Match match = matches.get(position);
 
 		String matchDay = "Matchday #" + match.getMatch_day();
@@ -95,6 +96,7 @@ public class MatchListAdapter extends RecyclerView.Adapter<MatchListAdapter.Matc
 		return matches.size();
 	}
 
+	// Set matches for the fragment
 	public void setMatches(List<Match> matches) {
 		this.matches.clear();
 		this.matches.addAll(matches);

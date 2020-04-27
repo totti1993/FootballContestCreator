@@ -20,15 +20,15 @@ import java.util.List;
 
 public class TournamentViewModel extends AndroidViewModel {
 
-	private AppDatabase appDatabase;
+	private AppDatabase appDatabase;                // Room database
+	private DatabaseReference onlineTournaments;    // Reference to Firebase "tournaments" node
+	private ChildEventListener childEventListener;  // Listener to modify "tournaments" table in Room database
 
 	public TournamentViewModel(Application application) {
 		super(application);
-
 		appDatabase = AppDatabase.getDatabase(application);
-
-		DatabaseReference onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
-		onlineTournaments.addChildEventListener(new ChildEventListener() {
+		onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
+		childEventListener = new ChildEventListener() {
 			@Override
 			public void onChildAdded(@NonNull final DataSnapshot tournament, @Nullable String s) {
 				new AsyncTask<Void, Void, Void>() {
@@ -71,7 +71,18 @@ public class TournamentViewModel extends AndroidViewModel {
 			public void onCancelled(@NonNull DatabaseError databaseError) {
 
 			}
-		});
+		};
+		addListenerToOnlineDatabase();
+	}
+
+	// Add listener to "tournaments" node in Firebase
+	public void addListenerToOnlineDatabase() {
+		onlineTournaments.addChildEventListener(childEventListener);
+	}
+
+	// Remove listener from "tournaments" node in Firebase
+	public void removeListenerFromOnlineDatabase() {
+		onlineTournaments.removeEventListener(childEventListener);
 	}
 
 	public void insertAll(List<Tournament> tournaments) {
@@ -82,19 +93,31 @@ public class TournamentViewModel extends AndroidViewModel {
 		appDatabase.tournamentDao().deleteAll();
 	}
 
-	public LiveData<List<Tournament>> getAllTournamentsOrdered() {
-		return appDatabase.tournamentDao().findAllTournamentsOrdered();
+	// Observed queries
+
+	public LiveData<List<Tournament>> getAllTournaments() {
+		return appDatabase.tournamentDao().findAllTournaments();
 	}
 
 	public LiveData<Tournament> getTournamentById(String id) {
 		return appDatabase.tournamentDao().findTournamentById(id);
 	}
 
+	public LiveData<String> getCommentsById(String id) {
+		return appDatabase.tournamentDao().findCommentsById(id);
+	}
+
+	// Async queries
+
+	public List<Tournament> getAllTournamentsAsync() {
+		return appDatabase.tournamentDao().findAllTournamentsAsync();
+	}
+
 	public Tournament getTournamentByIdAsync(String id) {
 		return appDatabase.tournamentDao().findTournamentByIdAsync(id);
 	}
 
-	public LiveData<String> getCommentsById(String id) {
-		return appDatabase.tournamentDao().findCommentsById(id);
+	public String getCreatorByIdAsync(String id) {
+		return appDatabase.tournamentDao().findCreatorByIdAsync(id);
 	}
 }

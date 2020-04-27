@@ -5,7 +5,7 @@
     <dimen name="big_padding">16dp</dimen>
     <dimen name="small_margin">8dp</dimen>
     <dimen name="big_margin">16dp</dimen>
-    <dimen name="nav_header_width">284dp</dimen>
-    <dimen name="nav_header_height">160dp</dimen>
+    <dimen name="nav_header_width">280dp</dimen>
+    <dimen name="nav_header_height">200dp</dimen>
 
 </resources>

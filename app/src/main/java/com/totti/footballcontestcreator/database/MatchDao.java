@@ -28,6 +28,8 @@ public interface MatchDao {
 	@Query("DELETE FROM matches")
 	void deleteAll();
 
+	// Observed queries
+
 	@Query("SELECT * FROM matches WHERE (home_id LIKE :team_id OR visitor_id LIKE :team_id) AND final_score = :final_score")
 	LiveData<List<Match>> findAllMatchesByTeamAndFinalScore(String team_id, boolean final_score);
 
@@ -37,8 +39,7 @@ public interface MatchDao {
 	@Query("SELECT * FROM matches WHERE (home_id LIKE :team_id OR visitor_id LIKE :team_id) AND tournament_id LIKE :tournament_id AND final_score = :final_score")
 	LiveData<List<Match>> findAllMatchesByTeamTournamentAndFinalScore(String team_id, String tournament_id, boolean final_score);
 
-	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND final_score = :final_score")
-	List<Match> findAllMatchesByTournamentAndFinalScoreAsync(String tournament_id, boolean final_score);
+	// Async queries
 
 	@Query("SELECT * FROM matches WHERE home_id LIKE :team_id OR visitor_id LIKE :team_id")
 	List<Match> findAllMatchesByTeamAsync(String team_id);
@@ -46,9 +47,12 @@ public interface MatchDao {
 	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id")
 	List<Match> findAllMatchesByTournamentAsync(String tournament_id);
 
-	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND home_id LIKE :home_id AND visitor_id LIKE :visitor_id LIMIT 1")
-	Match findMatchByTournamentAndTeamsInEliminationAsync(String tournament_id, String home_id, String visitor_id);
+	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND final_score = :final_score")
+	List<Match> findAllMatchesByTournamentAndFinalScoreAsync(String tournament_id, boolean final_score);
 
 	@Query("SELECT * FROM matches WHERE id LIKE :id LIMIT 1")
 	Match findMatchByIdAsync(String id);
+
+	@Query("SELECT * FROM matches WHERE tournament_id LIKE :tournament_id AND home_id LIKE :home_id AND visitor_id LIKE :visitor_id LIMIT 1")
+	Match findMatchByTournamentAndTeamsInEliminationAsync(String tournament_id, String home_id, String visitor_id);
 }

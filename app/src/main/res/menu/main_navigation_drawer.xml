@@ -2,7 +2,9 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:checkableBehavior="single">
+
         <item
             android:id="@+id/nav_tournaments"
             android:icon="@drawable/ic_menu_tournaments"
@@ -11,16 +13,11 @@
             android:id="@+id/nav_teams"
             android:icon="@drawable/ic_menu_teams"
             android:title="@string/teams" />
-        <!--
         <item
-            android:id="@+id/nav_favorites"
-            android:icon="@drawable/ic_menu_favorites"
-            android:title="@string/favorites" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_menu_settings"
-            android:title="@string/settings" />
-        -->
+            android:id="@+id/nav_sign_in_out"
+            android:icon="@drawable/ic_menu_sign_in_out"
+            android:title="@string/sign_in_out" />
+
     </group>
 
 </menu>

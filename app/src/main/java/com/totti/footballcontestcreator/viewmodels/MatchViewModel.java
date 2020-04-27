@@ -20,15 +20,20 @@ import java.util.List;
 
 public class MatchViewModel extends AndroidViewModel {
 
-	private AppDatabase appDatabase;
+	private AppDatabase appDatabase;                // Room database
+	private DatabaseReference onlineMatches;        // Reference to Firebase "matches" node
+	private ChildEventListener childEventListener;  // Listener to modify "matches" table in Room database
+
+	private LiveData<List<Match>> selectedMatches;  // LiveData required for the match filter
 
 	public MatchViewModel(Application application) {
 		super(application);
 
-		appDatabase = AppDatabase.getDatabase(application);
+		selectedMatches = null;
 
-		DatabaseReference onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
-		onlineMatches.addChildEventListener(new ChildEventListener() {
+		appDatabase = AppDatabase.getDatabase(application);
+		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
+		childEventListener = new ChildEventListener() {
 			@Override
 			public void onChildAdded(@NonNull final DataSnapshot match, @Nullable String s) {
 				new AsyncTask<Void, Void, Void>() {
@@ -71,7 +76,18 @@ public class MatchViewModel extends AndroidViewModel {
 			public void onCancelled(@NonNull DatabaseError databaseError) {
 
 			}
-		});
+		};
+		addListenerToOnlineDatabase();
+	}
+
+	// Add listener to "matches" node in Firebase
+	public void addListenerToOnlineDatabase() {
+		onlineMatches.addChildEventListener(childEventListener);
+	}
+
+	// Remove listener from "matches" node in Firebase
+	public void removeListenerFromOnlineDatabase() {
+		onlineMatches.removeEventListener(childEventListener);
 	}
 
 	public void insertAll(List<Match> matches) {
@@ -82,29 +98,29 @@ public class MatchViewModel extends AndroidViewModel {
 		appDatabase.matchDao().deleteAll();
 	}
 
+	// Observed queries
+
 	public LiveData<List<Match>> getAllMatchesByTeamTournamentAndFinalScore(String team_id, String tournament_id, boolean final_score) {
 		if(team_id != null) {
-			if(tournament_id == null) {
-				return appDatabase.matchDao().findAllMatchesByTeamAndFinalScore(team_id, final_score);
+			if(tournament_id != null) {
+				selectedMatches = appDatabase.matchDao().findAllMatchesByTeamTournamentAndFinalScore(team_id, tournament_id, final_score);
 			}
 			else {
-				return appDatabase.matchDao().findAllMatchesByTeamTournamentAndFinalScore(team_id, tournament_id, final_score);
+				selectedMatches = appDatabase.matchDao().findAllMatchesByTeamAndFinalScore(team_id, final_score);
 			}
 		}
 		else{
-			if(tournament_id == null) {
-				// never reaching this condition
-				return null;
+			if(tournament_id != null) {
+				selectedMatches = appDatabase.matchDao().findAllMatchesByTournamentAndFinalScore(tournament_id, final_score);
 			}
 			else {
-				return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScore(tournament_id, final_score);
+				return selectedMatches;
 			}
 		}
+		return selectedMatches;
 	}
 
-	public List<Match> getAllMatchesByTournamentAndFinalScoreAsync(String tournament_id, boolean final_score) {
-		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScoreAsync(tournament_id, final_score);
-	}
+	// Async queries
 
 	public List<Match> getAllMatchesByTeamAsync(String team_id) {
 		return appDatabase.matchDao().findAllMatchesByTeamAsync(team_id);
@@ -114,11 +130,15 @@ public class MatchViewModel extends AndroidViewModel {
 		return appDatabase.matchDao().findAllMatchesByTournamentAsync(tournament_id);
 	}
 
-	public Match getMatchByTournamentAndTeamsInEliminationAsync(String tournament_id, String home_id, String visitor_id) {
-		return appDatabase.matchDao().findMatchByTournamentAndTeamsInEliminationAsync(tournament_id, home_id, visitor_id);
+	public List<Match> getAllMatchesByTournamentAndFinalScoreAsync(String tournament_id, boolean final_score) {
+		return appDatabase.matchDao().findAllMatchesByTournamentAndFinalScoreAsync(tournament_id, final_score);
 	}
 
 	public Match getMatchByIdAsync(String id) {
 		return appDatabase.matchDao().findMatchByIdAsync(id);
+	}
+
+	public Match getMatchByTournamentAndTeamsInEliminationAsync(String tournament_id, String home_id, String visitor_id) {
+		return appDatabase.matchDao().findMatchByTournamentAndTeamsInEliminationAsync(tournament_id, home_id, visitor_id);
 	}
 }

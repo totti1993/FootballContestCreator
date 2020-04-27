@@ -17,17 +17,23 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import com.totti.footballcontestcreator.adapters.TeamListAdapter;
+import com.totti.footballcontestcreator.database.Favorite;
 import com.totti.footballcontestcreator.database.Match;
 import com.totti.footballcontestcreator.database.Ranking;
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.R;
 import com.totti.footballcontestcreator.TeamActivity;
+import com.totti.footballcontestcreator.viewmodels.FavoriteViewModel;
 import com.totti.footballcontestcreator.viewmodels.MatchViewModel;
 import com.totti.footballcontestcreator.viewmodels.RankingViewModel;
 import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
@@ -37,6 +43,11 @@ import java.util.List;
 public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeamClickedListener {
 
 	private DatabaseReference onlineTeams;
+	private DatabaseReference onlineFavorites;
+
+	private FavoriteViewModel favoriteViewModel;
+	private RankingViewModel rankingViewModel;
+	private TeamViewModel teamViewModel;
 
 	@Nullable
 	@Override
@@ -44,14 +55,47 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 		View rootView = inflater.inflate(R.layout.item_list_fragment, container, false);
 
 		onlineTeams = FirebaseDatabase.getInstance().getReference("teams");
+		onlineFavorites = FirebaseDatabase.getInstance().getReference("favorites");
+
+		favoriteViewModel = new ViewModelProvider(requireActivity()).get(FavoriteViewModel.class);
+		rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
+		teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
 
 		final TeamListAdapter teamListAdapter = new TeamListAdapter(this);
 
-		TeamViewModel teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
-		teamViewModel.getAllTeamsOrdered().observe(getViewLifecycleOwner(), new Observer<List<Team>>() {
+		// Keep all teams up to date
+		teamViewModel.getAllTeams().observe(getViewLifecycleOwner(), new Observer<List<Team>>() {
 			@Override
-			public void onChanged(@Nullable List<Team> teams) {
-				teamListAdapter.setTeams(teams);
+			public void onChanged(final List<Team> teams) {
+				new AsyncTask<Void, Void, List<String>>() {
+					@Override
+					protected List<String> doInBackground(Void... voids) {
+						return favoriteViewModel.getAllFavoriteTeamsAsync();
+					}
+
+					@Override
+					protected void onPostExecute(List<String> favorites) {
+						teamListAdapter.setTeams(teams, favorites);
+					}
+				}.execute();
+			}
+		});
+
+		// Keep all favorite teams up to date
+		favoriteViewModel.getAllFavoriteTeams().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
+			@Override
+			public void onChanged(final List<String> favorites) {
+				new AsyncTask<Void, Void, List<Team>>() {
+					@Override
+					protected List<Team> doInBackground(Void... voids) {
+						return teamViewModel.getAllTeamsAsync();
+					}
+
+					@Override
+					protected void onPostExecute(List<Team> teams) {
+						teamListAdapter.setTeams(teams, favorites);
+					}
+				}.execute();
 			}
 		});
 
@@ -62,17 +106,24 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
 		recyclerView.addItemDecoration(dividerItemDecoration);
 
+		// Button to add new teams
 		FloatingActionButton fab = rootView.findViewById(R.id.new_item_fab);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				new NewTeamDialogFragment().show(requireActivity().getSupportFragmentManager(), NewTeamDialogFragment.TAG);
+				if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+					new NewTeamDialogFragment().show(requireActivity().getSupportFragmentManager(), NewTeamDialogFragment.TAG);
+				}
+				else {
+					Toast.makeText(requireContext(), "No user is signed in!", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 
 		return rootView;
 	}
 
+	// Start TeamActivity
 	@Override
 	public void onTeamClicked(Team team) {
 		Intent intent = new Intent(requireActivity(), TeamActivity.class);
@@ -80,6 +131,7 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 		startActivity(intent);
 	}
 
+	// Delete team or send an email about it
 	@Override
 	public void onTeamLongClicked(final Team team) {
 		new AlertDialog.Builder(requireContext()).setMessage("What would you like to do?")
@@ -92,39 +144,60 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 				.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						new AlertDialog.Builder(requireContext()).setMessage("Are you sure you want to delete team \"" + team.getName() + "\"?")
-								.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										onlineTeams.child(team.getId()).removeValue();
-
-										Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
-									}
-								})
-								.setNegativeButton("No", null)
-								.show();
+						if((FirebaseAuth.getInstance().getCurrentUser() != null) && FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(team.getCreator())) {
+							new AlertDialog.Builder(requireContext()).setMessage("Are you sure you want to delete team \"" + team.getName() + "\"?")
+									.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											delete(team);
+										}
+									})
+									.setNegativeButton("No", null)
+									.show();
+						}
+						else {
+							Toast.makeText(requireContext(), "Invalid user! Access denied!", Toast.LENGTH_SHORT).show();
+						}
 					}
 				})
-				.setNegativeButton("Cancel", null)
+				.setNegativeButton(R.string.cancel, null)
 				.show();
 	}
 
+	// Update favorite status of the team
 	@Override
-	public void onTeamStarClicked(Team team) {
-		onlineTeams.child(team.getId()).child("favorite").setValue(team.getFavorite());
+	public void onTeamStarClicked(final Team team, boolean favorite) {
+		if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+			// Insert into or delete from the user's list in Firebase
+			if(favorite) {
+				String id = team.getId();
+				String favorite_team_id = team.getId();
+				String favorite_type = "team";
 
-		if(team.getFavorite()) {
-			Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+				Favorite newFavorite = new Favorite(id, favorite_team_id, null, favorite_type);
+
+				onlineFavorites.child(FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", "(dot)")).child(newFavorite.getId()).setValue(newFavorite);
+
+				Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" added to favorites!", Toast.LENGTH_SHORT).show();
+			}
+			else {
+				onlineFavorites.child(FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", "(dot)")).child(team.getId()).removeValue();
+
+				Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+			}
 		}
 		else {
-			Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" removed from favorites!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(requireContext(), "No user is signed in!", Toast.LENGTH_SHORT).show();
 		}
 	}
 
+	// Send an email to the current user that contains every information about the team
 	private void sendEmail(final Team team) {
 		final Intent intent = new Intent(Intent.ACTION_SEND);
 		intent.setType("message/rfc822");
-		intent.putExtra(Intent.EXTRA_EMAIL, new String[] {"tothlaszlo.930618@gmail.com"});
+		if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+			intent.putExtra(Intent.EXTRA_EMAIL, new String[] {FirebaseAuth.getInstance().getCurrentUser().getEmail()});
+		}
 		intent.putExtra(Intent.EXTRA_SUBJECT, "FCC - Every information about team \"" + team.getName() + "\"");
 
 		final String[] emailText = {""};
@@ -192,6 +265,45 @@ public class TeamListFragment extends Fragment implements TeamListAdapter.OnTeam
 						startActivity(Intent.createChooser(intent, "Choose an application"));
 					}
 				}.execute();
+			}
+		}.execute();
+	}
+
+	// Delete team if there is no ranking connected to it in the database
+	// Delete it from the favorites too
+	private void delete(final Team team) {
+		new AsyncTask<Void, Void, List<Ranking>>() {
+			@Override
+			protected List<Ranking> doInBackground(Void... voids) {
+				return rankingViewModel.getAllRankingsByTeamAsync(team.getId());
+			}
+
+			@Override
+			protected void onPostExecute(List<Ranking> rankings) {
+				if(rankings.isEmpty()) {
+					onlineFavorites.addListenerForSingleValueEvent(new ValueEventListener() {
+						@Override
+						public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+							for(DataSnapshot snapshot : dataSnapshot.getChildren()) {
+								if(snapshot.hasChild(team.getId())) {
+									onlineFavorites.child(snapshot.getKey()).child(team.getId()).removeValue();
+								}
+							}
+						}
+
+						@Override
+						public void onCancelled(@NonNull DatabaseError databaseError) {
+
+						}
+					});
+
+					onlineTeams.child(team.getId()).removeValue();
+
+					Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" deleted!", Toast.LENGTH_SHORT).show();
+				}
+				else {
+					Toast.makeText(requireContext(), "Team cannot be deleted!", Toast.LENGTH_SHORT).show();
+				}
 			}
 		}.execute();
 	}

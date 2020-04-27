@@ -2,14 +2,13 @@ package com.totti.footballcontestcreator;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.totti.footballcontestcreator.database.Team;
@@ -20,7 +19,7 @@ import com.totti.footballcontestcreator.viewmodels.TeamViewModel;
 
 public class TeamActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-	private String id;
+	private String id;      // ID of the team
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +28,6 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 
 		Toolbar toolbar = findViewById(R.id.shared_toolbar);
 		this.setSupportActionBar(toolbar);
-
-		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		Intent intent = getIntent();
 		id = intent.getStringExtra("id");
@@ -50,18 +46,7 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 			}
 		});
 	}
-/*
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.shared_action_bar, menu);
-		return true;
-	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
-	}
-*/
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		Bundle args = new Bundle();
@@ -75,15 +60,15 @@ public class TeamActivity extends AppCompatActivity implements BottomNavigationV
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, statisticsFragment).commit();
 				break;
 			case R.id.team_nav_results:
-				args.putString("tab", "results");
 				args.putString("tournamentType", "Mixed");
+				args.putString("tab", "results");
 				MatchListFragment resultListFragment = new MatchListFragment();
 				resultListFragment.setArguments(args);
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, resultListFragment).commit();
 				break;
 			case R.id.team_nav_matches:
-				args.putString("tab", "matches");
 				args.putString("tournamentType", "Mixed");
+				args.putString("tab", "matches");
 				MatchListFragment matchListFragment = new MatchListFragment();
 				matchListFragment.setArguments(args);
 				this.getSupportFragmentManager().beginTransaction().replace(R.id.shared_fragment_content, matchListFragment).commit();

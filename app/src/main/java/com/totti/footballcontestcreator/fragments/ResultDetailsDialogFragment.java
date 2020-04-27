@@ -59,7 +59,7 @@ public class ResultDetailsDialogFragment extends DialogFragment {
 				.setView(getContentView())
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
+					public void onClick(DialogInterface dialog, int which) {
 						onlineMatches.child(id).child("comments").setValue(commentsEditText.getText().toString());
 
 						Toast.makeText(requireContext(), "Match comments updated!", Toast.LENGTH_SHORT).show();
@@ -96,6 +96,8 @@ public class ResultDetailsDialogFragment extends DialogFragment {
 				visitorTeamScoreTextView.setText(Integer.toString(match.getVisitor_score()));
 				visitorTeamNameTextView.setText(match.getVisitor_name());
 				commentsEditText.setText(match.getComments());
+				// Set cursor to the end of the text
+				commentsEditText.setSelection(commentsEditText.getText().length());
 			}
 		}.execute();
 

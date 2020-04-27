@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
         android:textStyle="bold"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
     <TextView
@@ -27,6 +28,7 @@
         app:layout_constraintRight_toLeftOf="@id/ranking_points_textView"
         app:layout_constraintTop_toTopOf="parent"
         android:textStyle="italic"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp"
         android:singleLine="true"
         android:ellipsize="end" />
@@ -40,6 +42,7 @@
         app:layout_constraintRight_toLeftOf="@id/ranking_wins_textView"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
     <TextView
@@ -51,6 +54,7 @@
         app:layout_constraintRight_toLeftOf="@id/ranking_draws_textView"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
     <TextView
@@ -62,6 +66,7 @@
         app:layout_constraintRight_toLeftOf="@id/ranking_losses_textView"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
     <TextView
@@ -73,6 +78,7 @@
         app:layout_constraintRight_toLeftOf="@id/ranking_goal_difference_textView"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
     <TextView
@@ -83,6 +89,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

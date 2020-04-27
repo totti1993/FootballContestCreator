@@ -22,6 +22,6 @@
         android:layout_gravity="center_vertical"
         android:paddingLeft="@dimen/small_padding"
         android:textSize="25sp"
-        android:textColor="#000000"/>
+        android:textColor="@color/colorBlack"/>
 
 </LinearLayout>

@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/small_margin"
             android:gravity="center"
-            android:text="#"
+            android:text="@string/place"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/small_margin"
             android:layout_weight="1"
-            android:text="Team"
+            android:text="@string/team"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/small_margin"
             android:gravity="center"
-            android:text="P"
+            android:text="@string/points"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/small_margin"
             android:gravity="center"
-            android:text="W"
+            android:text="@string/wins"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />
@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/small_margin"
             android:gravity="center"
-            android:text="D"
+            android:text="@string/draws"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />
@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/small_margin"
             android:gravity="center"
-            android:text="L"
+            android:text="@string/losses"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />
@@ -79,7 +79,7 @@
             android:layout_width="25dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="GD"
+            android:text="@string/goal_difference"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
             android:textSize="18sp" />

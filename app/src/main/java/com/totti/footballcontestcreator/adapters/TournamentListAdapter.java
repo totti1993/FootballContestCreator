@@ -17,12 +17,12 @@ import java.util.List;
 
 public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAdapter.TournamentViewHolder> {
 
-	private List<Tournament> tournaments;
+	private ArrayList<ArrayList<Object>> tournaments;       // List to hold all tournaments
 
 	public interface OnTournamentClickedListener {
 		void onTournamentClicked(Tournament tournament);
 		void onTournamentLongClicked(Tournament tournament);
-		void onTournamentStarClicked(Tournament tournament);
+		void onTournamentStarClicked(Tournament tournament, boolean favorite);
 	}
 
 	private OnTournamentClickedListener listener;
@@ -47,6 +47,7 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 			typeTextView = tournamentView.findViewById(R.id.tournament_type_textView);
 			favoriteToggleButton = tournamentView.findViewById(R.id.tournament_favorite_toggleButton);
 
+			// Listener: Click on a tournament
 			tournamentView.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
@@ -56,6 +57,7 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 				}
 			});
 
+			// Listener: Long click on a tournament
 			tournamentView.setOnLongClickListener(new View.OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
@@ -67,12 +69,18 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 				}
 			});
 
+			// Listener: Click on a star next to a tournament
 			favoriteToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 					if(tournament != null && buttonView.isPressed()) {
-						tournament.setFavorite(isChecked);
-						listener.onTournamentStarClicked(tournament);
+						for(ArrayList<Object> tournamentWithFavorite : tournaments) {
+							if(tournament.equals(tournamentWithFavorite.get(0))) {
+								tournamentWithFavorite.set(1, isChecked);
+								break;
+							}
+						}
+						listener.onTournamentStarClicked(tournament, isChecked);
 					}
 				}
 			});
@@ -88,14 +96,14 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 
 	@Override
 	public void onBindViewHolder(@NonNull TournamentViewHolder holder, int position) {
-		Tournament tournament = tournaments.get(position);
+		Tournament tournament = (Tournament) tournaments.get(position).get(0);
 
 		holder.nameTextView.setText(tournament.getName());
 
 		holder.typeTextView.setText(tournament.getType());
 
-		holder.favoriteToggleButton.setChecked(tournament.getFavorite());
-		holder.favoriteToggleButton.setBackgroundResource(tournament.getFavorite() ? R.drawable.ic_star_green : R.drawable.ic_star_border_grey);
+		holder.favoriteToggleButton.setChecked((Boolean) tournaments.get(position).get(1));
+		holder.favoriteToggleButton.setBackgroundResource(((Boolean) tournaments.get(position).get(1)) ? R.drawable.ic_star_green : R.drawable.ic_star_border_grey);
 
 		holder.tournament = tournament;
 	}
@@ -105,9 +113,25 @@ public class TournamentListAdapter extends RecyclerView.Adapter<TournamentListAd
 		return tournaments.size();
 	}
 
-	public void setTournaments(List<Tournament> tournaments) {
+	// Set favorite and non-favorite tournaments for the fragment
+	public void setTournaments(List<Tournament> tournaments, List<String> favorites) {
 		this.tournaments.clear();
-		this.tournaments.addAll(tournaments);
+		for(Tournament tournament : tournaments) {
+			if(favorites.contains(tournament.getId())) {
+				ArrayList<Object> tournamentWithFavorite = new ArrayList<>();
+				tournamentWithFavorite.add(tournament);
+				tournamentWithFavorite.add(true);
+				this.tournaments.add(tournamentWithFavorite);
+			}
+		}
+		for(Tournament tournament : tournaments) {
+			if(!favorites.contains(tournament.getId())) {
+				ArrayList<Object> tournamentWithoutFavorite = new ArrayList<>();
+				tournamentWithoutFavorite.add(tournament);
+				tournamentWithoutFavorite.add(false);
+				this.tournaments.add(tournamentWithoutFavorite);
+			}
+		}
 		notifyDataSetChanged();
 	}
 }

@@ -2,14 +2,13 @@ package com.totti.footballcontestcreator;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import com.totti.footballcontestcreator.database.Tournament;
@@ -20,8 +19,8 @@ import com.totti.footballcontestcreator.viewmodels.TournamentViewModel;
 
 public class TournamentActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
 
-	private String id;
-	private String tournamentType;
+	private String id;              // ID of the tournament
+	private String tournamentType;  // Type of the tournament: "Championship" or "Elimination"
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +29,6 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 
 		Toolbar toolbar = findViewById(R.id.shared_toolbar);
 		this.setSupportActionBar(toolbar);
-
-		ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		Intent intent = getIntent();
 		id = intent.getStringExtra("id");
@@ -52,24 +48,13 @@ public class TournamentActivity extends AppCompatActivity implements BottomNavig
 			}
 		});
 	}
-/*
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.shared_action_bar, menu);
-		return true;
-	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
-	}
-*/
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 		Bundle args = new Bundle();
 		args.putString("id", id);
-		args.putString("tournamentType", tournamentType);
 		args.putString("type", "tournament");
+		args.putString("tournamentType", tournamentType);
 
 		switch(item.getItemId()) {
 			case R.id.tournament_nav_table:

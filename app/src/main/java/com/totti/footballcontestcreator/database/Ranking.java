@@ -3,59 +3,77 @@ package com.totti.footballcontestcreator.database;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "rankings",
-		foreignKeys = {@ForeignKey(entity = Tournament.class, parentColumns = "id", childColumns = "tournament_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
-					   @ForeignKey(entity = Team.class, parentColumns = "id", childColumns = "team_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)})
+@Entity(tableName = "rankings")
+	 /* foreignKeys = {@ForeignKey(entity = Tournament.class, parentColumns = "id", childColumns = "tournament_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
+					   @ForeignKey(entity = Team.class, parentColumns = "id", childColumns = "team_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)} */
 public class Ranking {
 
+	// ID of the ranking
 	@ColumnInfo(name = "id")
 	@PrimaryKey
 	@NonNull
 	private String id;
 
+	// Creator of the ranking (email address)
+	@ColumnInfo(name = "creator")
+	private String creator;
+
+	// ID of the tournament that contains the ranking
 	@ColumnInfo(name = "tournament_id")
 	private String tournament_id;
 
+	// Name of the tournament that contains the ranking
 	@ColumnInfo(name = "tournament_name")
 	private String tournament_name;
 
+	// ID of the team that has the ranking
 	@ColumnInfo(name = "team_id")
 	private String team_id;
 
+	// Name of the team that has the ranking
 	@ColumnInfo(name = "team_name")
 	private String team_name;
 
+	// Current place of the team in the tournament
 	@ColumnInfo(name = "place")
 	private int place;
 
+	// Number of points of the team in the tournament
 	@ColumnInfo(name = "points")
 	private int points;
 
+	// Number of wins of the team in the tournament
 	@ColumnInfo(name = "wins")
 	private int wins;
 
+	// Number of draws of the team in the tournament
 	@ColumnInfo(name = "draws")
 	private int draws;
 
+	// Number of losses of the team in the tournament
 	@ColumnInfo(name = "losses")
 	private int losses;
 
+	// Number of goals scored by the team in the tournament
 	@ColumnInfo(name = "goals_for")
 	private int goals_for;
 
+	// Number of goals conceded by the team in the tournament
 	@ColumnInfo(name = "goals_against")
 	private int goals_against;
 
+	// Difference of the scored goals and the conceded goals
 	@ColumnInfo(name = "goal_difference")
 	private int goal_difference;
 
+	// Comments about the ranking
 	@ColumnInfo(name = "comments")
 	private String comments;
 
+	// Indicates whether the team is eliminated or not
 	@ColumnInfo(name = "active")
 	private boolean active;
 
@@ -64,8 +82,9 @@ public class Ranking {
 		// Default constructor required for DataSnapshot.getValue(Ranking.class)
 	}
 
-	public Ranking(@NonNull String id, String tournament_id, String tournament_name, String team_id, String team_name, int place) {
+	public Ranking(@NonNull String id, String creator, String tournament_id, String tournament_name, String team_id, String team_name, int place) {
 		this.id = id;
+		this.creator = creator;
 		this.tournament_id = tournament_id;
 		this.tournament_name = tournament_name;
 		this.team_id = team_id;
@@ -88,6 +107,14 @@ public class Ranking {
 
 	public void setId(@NonNull String id) {
 		this.id = id;
+	}
+
+	public String getCreator() {
+		return this.creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
 	public String getTournament_id() {

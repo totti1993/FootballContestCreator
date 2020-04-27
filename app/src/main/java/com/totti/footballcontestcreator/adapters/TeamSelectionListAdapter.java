@@ -17,17 +17,10 @@ import java.util.List;
 
 public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelectionListAdapter.TeamViewHolder> {
 
-	private List<Team> teams;
+	private ArrayList<ArrayList<Object>> teams;     // List to hold all selectable teams
 
-	public interface OnTeamClickedListener {
-		void onCheckBoxClicked(Team team);
-	}
-
-	private OnTeamClickedListener listener;
-
-	public TeamSelectionListAdapter(OnTeamClickedListener listener) {
+	public TeamSelectionListAdapter() {
 		teams = new ArrayList<>();
-		this.listener = listener;
 	}
 
 	class TeamViewHolder extends RecyclerView.ViewHolder {
@@ -43,12 +36,17 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 			nameTextView = teamView.findViewById(R.id.team_selection_name_textView);
 			checkBox = teamView.findViewById(R.id.team_selection_checkBox);
 
+			// Listener: Select / Deselect a team
 			checkBox.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
 				@Override
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 					if(team != null && buttonView.isPressed()) {
-						team.setSelected(isChecked);
-						listener.onCheckBoxClicked(team);
+						for(ArrayList<Object> selection : teams) {
+							if(team.equals(selection.get(0))) {
+								selection.set(1, isChecked);
+								break;
+							}
+						}
 					}
 				}
 			});
@@ -64,11 +62,11 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 
 	@Override
 	public void onBindViewHolder(@NonNull TeamViewHolder holder, int position) {
-		Team team = teams.get(position);
+		Team team = (Team) teams.get(position).get(0);
 
 		holder.nameTextView.setText(team.getName());
 
-		holder.checkBox.setChecked(team.getSelected());
+		holder.checkBox.setChecked((Boolean) teams.get(position).get(1));
 
 		holder.team = team;
 	}
@@ -78,13 +76,26 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 		return teams.size();
 	}
 
+	// Set teams as unselected for the dialog
 	public void setTeams(List<Team> teams) {
 		this.teams.clear();
-		this.teams.addAll(teams);
+		for(Team team : teams) {
+			ArrayList<Object> selection = new ArrayList<>();
+			selection.add(team);
+			selection.add(false);
+			this.teams.add(selection);
+		}
 		notifyDataSetChanged();
 	}
 
-	public List<Team> getTeams() {
-		return teams;
+	// Get only the selected teams from the list
+	public ArrayList<Team> getSelectedTeams() {
+		ArrayList<Team> selectedTeams = new ArrayList<>();
+		for(ArrayList<Object> selection : this.teams) {
+			if((Boolean) selection.get(1)) {
+				selectedTeams.add((Team) selection.get(0));
+			}
+		}
+		return selectedTeams;
 	}
 }

@@ -28,18 +28,25 @@ public interface TeamDao {
 	@Query("DELETE FROM teams")
 	void deleteAll();
 
-	@Query("SELECT * FROM teams ORDER BY favorite DESC, name ASC")
-	LiveData<List<Team>> findAllTeamsOrdered();
+	// Observed queries
+
+	@Query("SELECT * FROM teams ORDER BY name ASC")
+	LiveData<List<Team>> findAllTeams();
+
+	@Query("SELECT * FROM teams WHERE id LIKE :id LIMIT 1")
+	LiveData<Team> findTeamById(String id);
+
+	@Query("SELECT comments FROM teams WHERE id LIKE :id LIMIT 1")
+	LiveData<String> findCommentsById(String id);
+
+	// Async queries
 
 	@Query("SELECT * FROM teams ORDER BY name ASC")
 	List<Team> findAllTeamsAsync();
 
 	@Query("SELECT * FROM teams WHERE id LIKE :id LIMIT 1")
-	LiveData<Team> findTeamById(String id);
-
-	@Query("SELECT * FROM teams WHERE id LIKE :id LIMIT 1")
 	Team findTeamByIdAsync(String id);
 
-	@Query("SELECT comments FROM teams WHERE id LIKE :id LIMIT 1")
-	LiveData<String> findCommentsById(String id);
+	@Query("SELECT creator FROM teams WHERE id LIKE :id LIMIT 1")
+	String findCreatorByIdAsync(String id);
 }
