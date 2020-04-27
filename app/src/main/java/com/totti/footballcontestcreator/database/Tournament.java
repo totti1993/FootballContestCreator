@@ -10,42 +10,49 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "tournaments", indices = {@Index(value = "name", unique = true)})
 public class Tournament {
 
+	// ID of the tournament
 	@ColumnInfo(name = "id")
 	@PrimaryKey
 	@NonNull
 	private String id;
 
+	// Creator of the tournament (email address)
+	@ColumnInfo(name = "creator")
+	private String creator;
+
+	// Name of the tournament
 	@ColumnInfo(name = "name")
 	private String name;
 
+	// Type of the tournament: "Championship" or "Elimination"
 	@ColumnInfo(name = "type")
 	private String type;
 
+	// Number of rounds of the tournament
 	@ColumnInfo(name = "rounds")
 	private int rounds;
 
+	// Number of teams of the tournament
 	@ColumnInfo(name = "teams")
 	private int teams;
 
+	// Comments about the tournament
 	@ColumnInfo(name = "comments")
 	private String comments;
-
-	@ColumnInfo(name = "favorite")
-	private boolean favorite;
 
 	@Ignore
 	public Tournament() {
 		// Default constructor required for DataSnapshot.getValue(Tournament.class)
 	}
 
-	public Tournament(@NonNull String id, String name, String type, int rounds, int teams, String comments) {
+	public Tournament(@NonNull String id, String creator, String name, String type, int rounds, int teams, String comments) {
 		this.id = id;
+		this.creator = creator;
 		this.name = name;
 		this.type = type;
 		this.rounds = rounds;
 		this.teams = teams;
 		this.comments = comments;
-		this.favorite = false;
 	}
 
 	@NonNull
@@ -55,6 +62,14 @@ public class Tournament {
 
 	public void setId(@NonNull String id) {
 		this.id = id;
+	}
+
+	public String getCreator() {
+		return this.creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
 	public String getName() {
@@ -95,13 +110,5 @@ public class Tournament {
 
 	public void setComments(String comments) {
 		this.comments = comments;
-	}
-
-	public boolean getFavorite() {
-		return this.favorite;
-	}
-
-	public void setFavorite(boolean favorite) {
-		this.favorite = favorite;
 	}
 }

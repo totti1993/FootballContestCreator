@@ -36,6 +36,7 @@ public class StatisticsFragment extends Fragment {
 
 		statsPieChart = rootView.findViewById(R.id.stats_pieChart);
 
+		// Keep the statistics (pie chart) up to date
 		TeamViewModel teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
 		teamViewModel.getTeamById(id).observe(getViewLifecycleOwner(), new Observer<Team>() {
 			@Override

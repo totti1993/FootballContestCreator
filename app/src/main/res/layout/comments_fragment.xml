@@ -12,7 +12,9 @@
         android:id="@+id/comments_textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/small_margin" />
+        android:layout_margin="@dimen/small_margin"
+        android:textColor="@color/colorBlack"
+        android:textSize="18sp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_comments_fab"

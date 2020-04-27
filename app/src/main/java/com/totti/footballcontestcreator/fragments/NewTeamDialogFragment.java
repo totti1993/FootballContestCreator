@@ -12,8 +12,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import com.totti.footballcontestcreator.database.Team;
 import com.totti.footballcontestcreator.R;
@@ -41,13 +45,29 @@ public class NewTeamDialogFragment extends DialogFragment {
 				.setView(getContentView())
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
+					public void onClick(DialogInterface dialog, int which) {
 						if(isValid()) {
-							Team team = createTeam();
+							// Check if the given team name already exists in the database
+							onlineTeams.orderByChild("name").equalTo(nameEditText.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+								@Override
+								public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+									if(!dataSnapshot.exists()) {
+										Team team = createTeam();
 
-							onlineTeams.child(team.getId()).setValue(team);
+										onlineTeams.child(team.getId()).setValue(team);
 
-							Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+										Toast.makeText(requireContext(), "Team \"" + team.getName() + "\" created!", Toast.LENGTH_SHORT).show();
+									}
+									else {
+										Toast.makeText(requireContext(), "Team name already in use!", Toast.LENGTH_SHORT).show();
+									}
+								}
+
+								@Override
+								public void onCancelled(@NonNull DatabaseError databaseError) {
+
+								}
+							});
 						}
 						else {
 							Toast.makeText(requireContext(), "Team not created!", Toast.LENGTH_SHORT).show();
@@ -68,17 +88,22 @@ public class NewTeamDialogFragment extends DialogFragment {
 		return contentView;
 	}
 
+	// Check if all given values are valid
 	private boolean isValid() {
+		// Check if the name of the team is not an empty string
 		return nameEditText.getText().length() > 0;
 	}
 
+	// Create a new item under Firebase "teams" node
 	private Team createTeam() {
 		String id = onlineTeams.push().getKey();
 
+		String creator = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+
 		String name = nameEditText.getText().toString();
 
-		String comments = commentsEditText.getText().toString();
+		String comments = "Created by: " + creator + "\n\n" + commentsEditText.getText().toString();
 
-		return new Team(id, name, comments);
+		return new Team(id, creator, name, comments);
 	}
 }

@@ -80,7 +80,7 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 				.setView(getContentView())
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
+					public void onClick(DialogInterface dialog, int which) {
 						if(isValid()) {
 							Map<String, Object> matchAttributes = new HashMap<>();
 
@@ -91,6 +91,7 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 
 							onlineMatches.child(id).updateChildren(matchAttributes);
 
+							// Set final result
 							if(finalScoreCheckBox.isChecked()) {
 								new AsyncTask<Void, Void, Match>() {
 									@Override
@@ -151,7 +152,9 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 		return contentView;
 	}
 
+	// Check if all given values are valid
 	private boolean isValid() {
+		// Check if the scores are not negative numbers
 		if((Integer.parseInt(homeTeamScoreEditText.getText().toString()) < 0) || (Integer.parseInt(visitorTeamScoreEditText.getText().toString()) < 0)) {
 			return false;
 		}
@@ -159,6 +162,7 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 		return true;
 	}
 
+	// If the match ends update the teams and the rankings
 	private void updateTeamsAndRankings(final Match match, final int homeScore, final int visitorScore) {
 		new AsyncTask<Void, Void, Team>() {
 			@Override
@@ -237,6 +241,7 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 						if(tournament.getType().equals("Elimination")) {
 							if(tournament.getRounds() == 1) {
 								if(homeScore < visitorScore) {
+									// Set team ranking to eliminated
 									rankingAttributes.put("active", false);
 								}
 								onlineRankings.child(ranking.getId()).updateChildren(rankingAttributes);
@@ -252,10 +257,12 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 									protected void onPostExecute(Match otherMatch) {
 										if(otherMatch.getFinal_score()) {
 											if((homeScore + otherMatch.getVisitor_score()) < (visitorScore + otherMatch.getHome_score())) {
+												// Set team ranking to eliminated
 												rankingAttributes.put("active", false);
 											}
 											else if((homeScore + otherMatch.getVisitor_score()) == (visitorScore + otherMatch.getHome_score())) {
 												if(otherMatch.getVisitor_score() < visitorScore) {
+													// Set team ranking to eliminated
 													rankingAttributes.put("active", false);
 												}
 											}
@@ -310,6 +317,7 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 						if(tournament.getType().equals("Elimination")) {
 							if(tournament.getRounds() == 1) {
 								if(visitorScore < homeScore) {
+									// Set team ranking to eliminated
 									rankingAttributes.put("active", false);
 								}
 								onlineRankings.child(ranking.getId()).updateChildren(rankingAttributes);
@@ -325,10 +333,12 @@ public class MatchDetailsDialogFragment extends DialogFragment {
 									protected void onPostExecute(Match otherMatch) {
 										if(otherMatch.getFinal_score()) {
 											if((visitorScore + otherMatch.getHome_score()) < (homeScore + otherMatch.getVisitor_score())) {
+												// Set team ranking to eliminated
 												rankingAttributes.put("active", false);
 											}
 											else if((visitorScore + otherMatch.getHome_score()) == (homeScore + otherMatch.getVisitor_score())) {
 												if(visitorScore < otherMatch.getVisitor_score()) {
+													// Set team ranking to eliminated
 													rankingAttributes.put("active", false);
 												}
 											}

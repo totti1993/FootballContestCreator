@@ -15,15 +15,15 @@ import java.util.List;
 
 public class RankingListAdapter extends RecyclerView.Adapter<RankingListAdapter.RankingViewHolder> {
 
-	private List<Ranking> rankings;
-	private String tournamentType;
+	private ArrayList<Ranking> rankings;    // List to hold all rankings
+	private String tournamentType;          // "Championship" or "Elimination"
 
 	public RankingListAdapter(String tournamentType) {
 		rankings = new ArrayList<>();
 		this.tournamentType = tournamentType;
 	}
 
-	class RankingViewHolder extends RecyclerView.ViewHolder {
+	static class RankingViewHolder extends RecyclerView.ViewHolder {
 
 		TextView rankingPlaceTextView;
 		TextView rankingTeamNameTextView;
@@ -56,7 +56,7 @@ public class RankingListAdapter extends RecyclerView.Adapter<RankingListAdapter.
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull final RankingViewHolder holder, int position) {
+	public void onBindViewHolder(@NonNull RankingViewHolder holder, int position) {
 		Ranking ranking = rankings.get(position);
 
 		String place = position + 1 + ".";
@@ -110,6 +110,7 @@ public class RankingListAdapter extends RecyclerView.Adapter<RankingListAdapter.
 		return rankings.size();
 	}
 
+	// Set rankings for the fragment
 	public void setRankings(List<Ranking> rankings) {
 		this.rankings.clear();
 		this.rankings.addAll(rankings);

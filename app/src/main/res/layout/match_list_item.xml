@@ -15,6 +15,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
         android:textStyle="italic"
+        android:textColor="@color/colorBlack"
         android:textSize="15sp" />
 
     <TextView
@@ -26,6 +27,7 @@
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         app:layout_constraintBottom_toBottomOf="@id/match_home_score_textView"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="20sp"
         android:singleLine="true"
         android:ellipsize="end" />
@@ -39,6 +41,7 @@
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         android:gravity="center"
         android:textStyle="bold"
+        android:textColor="@color/colorBlack"
         android:textSize="30sp" />
 
     <TextView
@@ -51,6 +54,7 @@
         android:gravity="center"
         android:text="@string/divider"
         android:textStyle="bold"
+        android:textColor="@color/colorBlack"
         android:textSize="30sp" />
 
     <TextView
@@ -62,6 +66,7 @@
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         android:gravity="center"
         android:textStyle="bold"
+        android:textColor="@color/colorBlack"
         android:textSize="30sp" />
 
     <TextView
@@ -73,6 +78,7 @@
         app:layout_constraintTop_toBottomOf="@id/match_day_textView"
         app:layout_constraintBottom_toBottomOf="@id/match_visitor_score_textView"
         android:gravity="center"
+        android:textColor="@color/colorBlack"
         android:textSize="20sp"
         android:singleLine="true"
         android:ellipsize="end" />

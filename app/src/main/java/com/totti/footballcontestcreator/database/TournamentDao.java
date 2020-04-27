@@ -28,15 +28,25 @@ public interface TournamentDao {
 	@Query("DELETE FROM tournaments")
 	void deleteAll();
 
-	@Query("SELECT * FROM tournaments ORDER BY favorite DESC, name ASC")
-	LiveData<List<Tournament>> findAllTournamentsOrdered();
+	// Observed queries
+
+	@Query("SELECT * FROM tournaments ORDER BY name ASC")
+	LiveData<List<Tournament>> findAllTournaments();
 
 	@Query("SELECT * FROM tournaments WHERE id LIKE :id LIMIT 1")
 	LiveData<Tournament> findTournamentById(String id);
 
+	@Query("SELECT comments FROM tournaments WHERE id LIKE :id LIMIT 1")
+	LiveData<String> findCommentsById(String id);
+
+	// Async queries
+
+	@Query("SELECT * FROM tournaments ORDER BY name ASC")
+	List<Tournament> findAllTournamentsAsync();
+
 	@Query("SELECT * FROM tournaments WHERE id LIKE :id LIMIT 1")
 	Tournament findTournamentByIdAsync(String id);
 
-	@Query("SELECT comments FROM tournaments WHERE id LIKE :id LIMIT 1")
-	LiveData<String> findCommentsById(String id);
+	@Query("SELECT creator FROM tournaments WHERE id LIKE :id LIMIT 1")
+	String findCreatorByIdAsync(String id);
 }

@@ -44,12 +44,12 @@ dependencies {
     annotationProcessor 'androidx.lifecycle:lifecycle-compiler:2.2.0'
 
     //Room components
-    implementation 'androidx.room:room-runtime:2.2.4'
-    annotationProcessor 'androidx.room:room-compiler:2.2.4'
+    implementation 'androidx.room:room-runtime:2.2.5'
+    annotationProcessor 'androidx.room:room-compiler:2.2.5'
 
     //Firebase components
-    implementation 'com.google.firebase:firebase-database:19.2.1'
-    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-database:19.3.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.1'
 
     // Debug tool for Room database
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'

@@ -3,51 +3,66 @@ package com.totti.footballcontestcreator.database;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "matches",
-		foreignKeys = {@ForeignKey(entity = Tournament.class, parentColumns = "id", childColumns = "tournament_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
+@Entity(tableName = "matches")
+	 /* foreignKeys = {@ForeignKey(entity = Tournament.class, parentColumns = "id", childColumns = "tournament_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
 					   @ForeignKey(entity = Team.class, parentColumns = "id", childColumns = "home_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE),
-					   @ForeignKey(entity = Team.class, parentColumns = "id", childColumns = "visitor_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)})
+					   @ForeignKey(entity = Team.class, parentColumns = "id", childColumns = "visitor_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)} */
 public class Match {
 
+	// ID of the match
 	@ColumnInfo(name = "id")
 	@PrimaryKey
 	@NonNull
 	private String id;
 
+	// Creator of the match (email address)
+	@ColumnInfo(name = "creator")
+	private String creator;
+
+	// ID of the tournament that contains the match
 	@ColumnInfo(name = "tournament_id")
 	private String tournament_id;
 
+	// Name of the tournament that contains the match
 	@ColumnInfo(name = "tournament_name")
 	private String tournament_name;
 
+	// Day when the match is played
 	@ColumnInfo(name = "match_day")
 	private int match_day;
 
+	// ID of the home team
 	@ColumnInfo(name = "home_id")
 	private String home_id;
 
+	// Name of the home team
 	@ColumnInfo(name = "home_name")
 	private String home_name;
 
+	// Score of the home team
 	@ColumnInfo(name = "home_score")
 	private int home_score;
 
+	// ID of the visitor team
 	@ColumnInfo(name = "visitor_id")
 	private String visitor_id;
 
+	// Name of the visitor team
 	@ColumnInfo(name = "visitor_name")
 	private String visitor_name;
 
+	// Score of the visitor team
 	@ColumnInfo(name = "visitor_score")
 	private int visitor_score;
 
+	// Comments about the match
 	@ColumnInfo(name = "comments")
 	private String comments;
 
+	// Indicates whether the match is finished or not
 	@ColumnInfo(name = "final_score")
 	private boolean final_score;
 
@@ -56,8 +71,9 @@ public class Match {
 		// Default constructor required for DataSnapshot.getValue(Match.class)
 	}
 
-	public Match(@NonNull String id, String tournament_id, String tournament_name, int match_day, String home_id, String home_name, String visitor_id, String visitor_name) {
+	public Match(@NonNull String id, String creator, String tournament_id, String tournament_name, int match_day, String home_id, String home_name, String visitor_id, String visitor_name) {
 		this.id = id;
+		this.creator = creator;
 		this.tournament_id = tournament_id;
 		this.tournament_name = tournament_name;
 		this.match_day = match_day;
@@ -77,6 +93,14 @@ public class Match {
 
 	public void setId(@NonNull String id) {
 		this.id = id;
+	}
+
+	public String getCreator() {
+		return this.creator;
+	}
+
+	public void setCreator(String creator) {
+		this.creator = creator;
 	}
 
 	public String getTournament_id() {

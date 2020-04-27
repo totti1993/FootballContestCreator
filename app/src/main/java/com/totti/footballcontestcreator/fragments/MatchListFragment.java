@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -54,6 +55,10 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 	private MatchListAdapter matchListAdapter;
 
 	private MatchViewModel matchViewModel;
+	private RankingViewModel rankingViewModel;
+	private TournamentViewModel tournamentViewModel;
+
+	private boolean alreadyAsked;   // Variable to store if round generation for Elimination has already been asked
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,8 +72,8 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 		View rootView = inflater.inflate(R.layout.match_list_fragment, container, false);
 
 		id = this.getArguments().getString("id");
-		tournamentType = this.getArguments().getString("tournamentType");
 		type = this.getArguments().getString("type");
+		tournamentType = this.getArguments().getString("tournamentType");
 		tab = this.getArguments().getString("tab");
 
 		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
@@ -76,6 +81,10 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 		matchListAdapter = new MatchListAdapter(this);
 
 		matchViewModel = new ViewModelProvider(requireActivity()).get(MatchViewModel.class);
+		rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
+		tournamentViewModel = new ViewModelProvider(requireActivity()).get(TournamentViewModel.class);
+
+		alreadyAsked = false;
 
 		RecyclerView recyclerView = rootView.findViewById(R.id.match_recyclerView);
 		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
@@ -92,16 +101,14 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.shared_action_bar, menu);
 
+		/* Spinner: Match filter
+		 *     Tournaments: filter by teams
+		 *     Teams: filter by tournaments
+		 */
 		MenuItem item = menu.findItem(R.id.action_spinner_filter);
 		Spinner spinner = (Spinner) item.getActionView();
 
 		final ArrayList<String> items = new ArrayList<>();
-		if(type.equals("team")) {
-			items.add("Tournaments");
-		}
-		else if(type.equals("tournament")) {
-			items.add("Teams");
-		}
 
 		final ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, items);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -109,7 +116,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 
 		final Map<String, String> validItemIds = new HashMap<>();
 
-		RankingViewModel rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
+		// Team: Fill the spinner with all tournaments the team participates in
 		if(type.equals("team")) {
 			rankingViewModel.getAllRankingsByTeam(id).observe(this, new Observer<List<Ranking>>() {
 				@Override
@@ -128,6 +135,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 				}
 			});
 		}
+		// Tournament: Fill the spinner with all teams the tournament has
 		else if(type.equals("tournament")) {
 			rankingViewModel.getAllRankingsByTournament(id).observe(this, new Observer<List<Ranking>>() {
 				@Override
@@ -147,17 +155,23 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 			});
 		}
 
+		// Listener: Click on spinner item and change filter
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id_number) {
 				String validItemId = validItemIds.get(parent.getItemAtPosition(position).toString());
 
-				if(type != null && tab != null && tournamentType != null) {
+				// Remove previous observer not to observe multiple LiveData at once
+				if(matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(null, null, false) != null) {
+					matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(null, null, false).removeObservers(getViewLifecycleOwner());
+				}
+
+				if(type != null && tournamentType != null && tab != null) {
 					if(type.equals("team")) {
 						if(tab.equals("matches")) {
 							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(id, validItemId, false).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
 								@Override
-								public void onChanged(@Nullable List<Match> matches) {
+								public void onChanged(List<Match> matches) {
 									matchListAdapter.setMatches(matches);
 								}
 							});
@@ -165,7 +179,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 						else if(tab.equals("results")) {
 							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(id, validItemId, true).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
 								@Override
-								public void onChanged(@Nullable List<Match> matches) {
+								public void onChanged(List<Match> matches) {
 									matchListAdapter.setMatches(matches);
 								}
 							});
@@ -175,38 +189,50 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 						if(tab.equals("matches")) {
 							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(validItemId, id, false).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
 								@Override
-								public void onChanged(@Nullable List<Match> matches) {
+								public void onChanged(List<Match> matches) {
 									matchListAdapter.setMatches(matches);
 
-									if(tournamentType.equals("Elimination")) {
-										new AsyncTask<Void, Void, List<Match>>() {
+									if(tournamentType.equals("Elimination") && !alreadyAsked) {
+										new AsyncTask<Void, Void, String>() {
 											@Override
-											protected List<Match> doInBackground(Void... voids) {
-												return matchViewModel.getAllMatchesByTournamentAndFinalScoreAsync(id, false);
+											protected String doInBackground(Void... voids) {
+												return tournamentViewModel.getCreatorByIdAsync(id);
 											}
 
 											@Override
-											protected void onPostExecute(List<Match> matches) {
-												if(matches.isEmpty()) {
-													final RankingViewModel rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
-													new AsyncTask<Void, Void, List<Ranking>>() {
+											protected void onPostExecute(String creator) {
+												if(FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(creator)) {
+													new AsyncTask<Void, Void, List<Match>>() {
 														@Override
-														protected List<Ranking> doInBackground(Void... voids) {
-															return rankingViewModel.getAllActiveRankingsByTournamentAsync(id);
+														protected List<Match> doInBackground(Void... voids) {
+															return matchViewModel.getAllMatchesByTournamentAndFinalScoreAsync(id, false);
 														}
 
 														@Override
-														protected void onPostExecute(final List<Ranking> rankings) {
-															if(rankings.size() > 1) {
-																new AlertDialog.Builder(requireContext()).setMessage("All matches finished in this round!\nReady to generate the next round?")
-																		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-																			@Override
-																			public void onClick(DialogInterface dialog, int which) {
-																				generateNextRound(rankings);
-																			}
-																		})
-																		.setNegativeButton("No", null)
-																		.show();
+														protected void onPostExecute(List<Match> matches) {
+															if(matches.isEmpty()) {
+																new AsyncTask<Void, Void, List<Ranking>>() {
+																	@Override
+																	protected List<Ranking> doInBackground(Void... voids) {
+																		return rankingViewModel.getAllActiveRankingsByTournamentAsync(id);
+																	}
+
+																	@Override
+																	protected void onPostExecute(final List<Ranking> rankings) {
+																		if(rankings.size() > 1) {
+																			alreadyAsked = true;
+																			new AlertDialog.Builder(requireContext()).setMessage("All matches finished in this round!\nReady to generate the next round?")
+																					.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+																						@Override
+																						public void onClick(DialogInterface dialog, int which) {
+																							generateNextRound(rankings);
+																						}
+																					})
+																					.setNegativeButton("No", null)
+																					.show();
+																		}
+																	}
+																}.execute();
 															}
 														}
 													}.execute();
@@ -220,7 +246,7 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 						else if(tab.equals("results")) {
 							matchViewModel.getAllMatchesByTeamTournamentAndFinalScore(validItemId, id, true).observe(getViewLifecycleOwner(), new Observer<List<Match>>() {
 								@Override
-								public void onChanged(@Nullable List<Match> matches) {
+								public void onChanged(List<Match> matches) {
 									matchListAdapter.setMatches(matches);
 								}
 							});
@@ -241,23 +267,30 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 		return super.onOptionsItemSelected(item);
 	}
 
+	// Click on a match to show match or result details
 	@Override
 	public void onMatchClicked(Match match) {
-		Bundle args = new Bundle();
-		args.putString("id", match.getId());
+		if(FirebaseAuth.getInstance().getCurrentUser() != null && FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(match.getCreator())) {
+			Bundle args = new Bundle();
+			args.putString("id", match.getId());
 
-		if(match.getFinal_score()) {
-			ResultDetailsDialogFragment resultDetailsDialogFragment = new ResultDetailsDialogFragment();
-			resultDetailsDialogFragment.setArguments(args);
-			resultDetailsDialogFragment.show(requireActivity().getSupportFragmentManager(), ResultDetailsDialogFragment.TAG);
+			if(match.getFinal_score()) {
+				ResultDetailsDialogFragment resultDetailsDialogFragment = new ResultDetailsDialogFragment();
+				resultDetailsDialogFragment.setArguments(args);
+				resultDetailsDialogFragment.show(requireActivity().getSupportFragmentManager(), ResultDetailsDialogFragment.TAG);
+			}
+			else {
+				MatchDetailsDialogFragment matchDetailsDialogFragment = new MatchDetailsDialogFragment();
+				matchDetailsDialogFragment.setArguments(args);
+				matchDetailsDialogFragment.show(requireActivity().getSupportFragmentManager(), MatchDetailsDialogFragment.TAG);
+			}
 		}
 		else {
-			MatchDetailsDialogFragment matchDetailsDialogFragment = new MatchDetailsDialogFragment();
-			matchDetailsDialogFragment.setArguments(args);
-			matchDetailsDialogFragment.show(requireActivity().getSupportFragmentManager(), MatchDetailsDialogFragment.TAG);
+			Toast.makeText(requireContext(), "Invalid user! Access denied!", Toast.LENGTH_SHORT).show();
 		}
 	}
 
+	// Generate round for Elimination with the remaining teams and update "matches" table in the database
 	private void generateNextRound(List<Ranking> rankings) {
 		final ArrayList<ArrayList<Ranking>> pairs = new ArrayList<>();
 
@@ -295,7 +328,6 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 				}
 				final int matchDay = rounds;
 
-				final TournamentViewModel tournamentViewModel = new ViewModelProvider(requireActivity()).get(TournamentViewModel.class);
 				new AsyncTask<Void, Void, Tournament>() {
 					@Override
 					protected Tournament doInBackground(Void... voids) {
@@ -310,10 +342,10 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 								Match newMatch;
 
 								if(i % 2 != 0) {
-									newMatch = new Match(matchId, tournament.getId(), tournament.getName(), matchDay + i, pair.get(0).getTeam_id(), pair.get(0).getTeam_name(), pair.get(1).getTeam_id(), pair.get(1).getTeam_name());
+									newMatch = new Match(matchId, tournament.getCreator(), tournament.getId(), tournament.getName(), matchDay + i, pair.get(0).getTeam_id(), pair.get(0).getTeam_name(), pair.get(1).getTeam_id(), pair.get(1).getTeam_name());
 								}
 								else {
-									newMatch = new Match(matchId, tournament.getId(), tournament.getName(), matchDay + i, pair.get(1).getTeam_id(), pair.get(1).getTeam_name(), pair.get(0).getTeam_id(), pair.get(0).getTeam_name());
+									newMatch = new Match(matchId, tournament.getCreator(), tournament.getId(), tournament.getName(), matchDay + i, pair.get(1).getTeam_id(), pair.get(1).getTeam_name(), pair.get(0).getTeam_id(), pair.get(0).getTeam_name());
 								}
 
 								onlineMatches.child(matchId).setValue(newMatch);

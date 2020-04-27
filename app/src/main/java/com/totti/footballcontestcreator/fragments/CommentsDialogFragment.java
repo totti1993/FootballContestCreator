@@ -68,7 +68,7 @@ public class CommentsDialogFragment extends DialogFragment {
 				.setView(getContentView())
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
+					public void onClick(DialogInterface dialog, int which) {
 						if(type.equals("team")) {
 							onlineTeams.child(id).child("comments").setValue(commentsEditText.getText().toString());
 
@@ -102,6 +102,8 @@ public class CommentsDialogFragment extends DialogFragment {
 				protected void onPostExecute(Team team) {
 					nameTextView.setText(team.getName());
 					commentsEditText.setText(team.getComments());
+					// Set cursor to the end of the text
+					commentsEditText.setSelection(commentsEditText.getText().length());
 				}
 			}.execute();
 		}
@@ -116,6 +118,8 @@ public class CommentsDialogFragment extends DialogFragment {
 				protected void onPostExecute(Tournament tournament) {
 					nameTextView.setText(tournament.getName());
 					commentsEditText.setText(tournament.getComments());
+					// Set cursor to the end of the text
+					commentsEditText.setSelection(commentsEditText.getText().length());
 				}
 			}.execute();
 		}

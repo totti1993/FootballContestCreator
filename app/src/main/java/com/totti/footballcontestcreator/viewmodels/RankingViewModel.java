@@ -20,15 +20,16 @@ import java.util.List;
 
 public class RankingViewModel extends AndroidViewModel {
 
-	private AppDatabase appDatabase;
+	private AppDatabase appDatabase;                // Room database
+	private DatabaseReference onlineRankings;       // Reference to Firebase "rankings" node
+	private ChildEventListener childEventListener;  // Listener to modify "rankings" table in Room database
 
 	public RankingViewModel(Application application) {
 		super(application);
 
 		appDatabase = AppDatabase.getDatabase(application);
-
-		DatabaseReference onlineRankings = FirebaseDatabase.getInstance().getReference("rankings");
-		onlineRankings.addChildEventListener(new ChildEventListener() {
+		onlineRankings = FirebaseDatabase.getInstance().getReference("rankings");
+		childEventListener = new ChildEventListener() {
 			@Override
 			public void onChildAdded(@NonNull final DataSnapshot ranking, @Nullable String s) {
 				new AsyncTask<Void, Void, Void>() {
@@ -71,7 +72,18 @@ public class RankingViewModel extends AndroidViewModel {
 			public void onCancelled(@NonNull DatabaseError databaseError) {
 
 			}
-		});
+		};
+		addListenerToOnlineDatabase();
+	}
+
+	// Add listener to "rankings" node in Firebase
+	public void addListenerToOnlineDatabase() {
+		onlineRankings.addChildEventListener(childEventListener);
+	}
+
+	// Remove listener from "rankings" node in Firebase
+	public void removeListenerFromOnlineDatabase() {
+		onlineRankings.removeEventListener(childEventListener);
 	}
 
 	public void insertAll(List<Ranking> rankings) {
@@ -82,8 +94,28 @@ public class RankingViewModel extends AndroidViewModel {
 		appDatabase.rankingDao().deleteAll();
 	}
 
+	// Observed queries
+
+	public LiveData<List<Ranking>> getAllRankingsByTeam(String team_id) {
+		return appDatabase.rankingDao().findAllRankingsByTeam(team_id);
+	}
+
+	public LiveData<List<Ranking>> getAllRankingsByTournament(String tournament_id) {
+		return appDatabase.rankingDao().findAllRankingsByTournament(tournament_id);
+	}
+
 	public LiveData<List<Ranking>> getAllRankingsByTournamentOrdered(String tournament_id) {
 		return appDatabase.rankingDao().findAllRankingsByTournamentOrdered(tournament_id);
+	}
+
+	// Async queries
+
+	public List<Ranking> getAllRankingsByTeamAsync(String team_id) {
+		return appDatabase.rankingDao().findAllRankingsByTeamAsync(team_id);
+	}
+
+	public List<Ranking> getAllRankingsByTournamentAsync(String tournament_id) {
+		return appDatabase.rankingDao().findAllRankingsByTournamentAsync(tournament_id);
 	}
 
 	public List<Ranking> getAllActiveRankingsByTournamentAsync(String tournament_id) {
@@ -92,25 +124,5 @@ public class RankingViewModel extends AndroidViewModel {
 
 	public Ranking getRankingByTournamentAndTeamAsync(String tournament_id, String team_id) {
 		return appDatabase.rankingDao().findRankingByTournamentAndTeamAsync(tournament_id, team_id);
-	}
-
-	public LiveData<List<Ranking>> getAllRankingsByTeam(String team_id) {
-		return appDatabase.rankingDao().findAllRankingsByTeam(team_id);
-	}
-
-	public List<Ranking> getAllRankingsByTeamAsync(String team_id) {
-		return appDatabase.rankingDao().findAllRankingsByTeamAsync(team_id);
-	}
-
-	public LiveData<List<Ranking>> getAllRankingsByTournament(String tournament_id) {
-		return appDatabase.rankingDao().findAllRankingsByTournament(tournament_id);
-	}
-
-	public List<Ranking> getAllRankingsByTournamentAsync(String tournament_id) {
-		return appDatabase.rankingDao().findAllRankingsByTournamentAsync(tournament_id);
-	}
-
-	public Ranking getRankingById(String id) {
-		return appDatabase.rankingDao().findRankingById(id);
 	}
 }

@@ -20,15 +20,16 @@ import java.util.List;
 
 public class TeamViewModel extends AndroidViewModel {
 
-	private AppDatabase appDatabase;
+	private AppDatabase appDatabase;                // Room database
+	private DatabaseReference onlineTeams;          // Reference to Firebase "teams" node
+	private ChildEventListener childEventListener;  // Listener to modify "teams" table in Room database
 
 	public TeamViewModel(Application application) {
 		super(application);
 
 		appDatabase = AppDatabase.getDatabase(application);
-
-		DatabaseReference onlineTeams = FirebaseDatabase.getInstance().getReference("teams");
-		onlineTeams.addChildEventListener(new ChildEventListener() {
+		onlineTeams = FirebaseDatabase.getInstance().getReference("teams");
+		childEventListener = new ChildEventListener() {
 			@Override
 			public void onChildAdded(@NonNull final DataSnapshot team, @Nullable String s) {
 				new AsyncTask<Void, Void, Void>() {
@@ -71,7 +72,18 @@ public class TeamViewModel extends AndroidViewModel {
 			public void onCancelled(@NonNull DatabaseError databaseError) {
 
 			}
-		});
+		};
+		addListenerToOnlineDatabase();
+	}
+
+	// Add listener to "teams" node in Firebase
+	public void addListenerToOnlineDatabase() {
+		onlineTeams.addChildEventListener(childEventListener);
+	}
+
+	// Remove listener from "teams" node in Firebase
+	public void removeListenerFromOnlineDatabase() {
+		onlineTeams.removeEventListener(childEventListener);
 	}
 
 	public void insertAll(List<Team> teams) {
@@ -82,23 +94,31 @@ public class TeamViewModel extends AndroidViewModel {
 		appDatabase.teamDao().deleteAll();
 	}
 
-	public LiveData<List<Team>> getAllTeamsOrdered() {
-		return appDatabase.teamDao().findAllTeamsOrdered();
-	}
+	// Observed queries
 
-	public List<Team> getAllTeamsAsync() {
-		return appDatabase.teamDao().findAllTeamsAsync();
+	public LiveData<List<Team>> getAllTeams() {
+		return appDatabase.teamDao().findAllTeams();
 	}
 
 	public LiveData<Team> getTeamById(String id) {
 		return appDatabase.teamDao().findTeamById(id);
 	}
 
+	public LiveData<String> getCommentsById(String id) {
+		return appDatabase.teamDao().findCommentsById(id);
+	}
+
+	// Async queries
+
+	public List<Team> getAllTeamsAsync() {
+		return appDatabase.teamDao().findAllTeamsAsync();
+	}
+
 	public Team getTeamByIdAsync(String id) {
 		return appDatabase.teamDao().findTeamByIdAsync(id);
 	}
 
-	public LiveData<String> getCommentsById(String id) {
-		return appDatabase.teamDao().findCommentsById(id);
+	public String getCreatorByIdAsync(String id) {
+		return appDatabase.teamDao().findCreatorByIdAsync(id);
 	}
 }

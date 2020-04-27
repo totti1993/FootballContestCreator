@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,17 +32,21 @@ public class TableFragment extends Fragment {
 
 		final RankingListAdapter rankingListAdapter = new RankingListAdapter(tournamentType);
 
+		// Keep the table up to date
 		RankingViewModel rankingViewModel = new ViewModelProvider(requireActivity()).get(RankingViewModel.class);
 		rankingViewModel.getAllRankingsByTournamentOrdered(id).observe(getViewLifecycleOwner(), new Observer<List<Ranking>>() {
 			@Override
-			public void onChanged(@Nullable List<Ranking> rankings) {
+			public void onChanged(List<Ranking> rankings) {
 				rankingListAdapter.setRankings(rankings);
 			}
 		});
 
 		RecyclerView recyclerView = rootView.findViewById(R.id.ranking_recyclerView);
-		recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+		LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
+		recyclerView.setLayoutManager(linearLayoutManager);
 		recyclerView.setAdapter(rankingListAdapter);
+		DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(), linearLayoutManager.getOrientation());
+		recyclerView.addItemDecoration(dividerItemDecoration);
 
 		return rootView;
 	}

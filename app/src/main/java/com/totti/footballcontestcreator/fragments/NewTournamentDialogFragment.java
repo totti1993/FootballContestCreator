@@ -18,8 +18,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import com.totti.footballcontestcreator.adapters.TeamSelectionListAdapter;
 import com.totti.footballcontestcreator.database.Match;
@@ -34,7 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class NewTournamentDialogFragment extends DialogFragment implements TeamSelectionListAdapter.OnTeamClickedListener {
+public class NewTournamentDialogFragment extends DialogFragment {
 
 	public static final String TAG = "NewTournamentDialogFragment";
 
@@ -47,8 +51,9 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 
 	private DatabaseReference onlineMatches;
 	private DatabaseReference onlineRankings;
-	private DatabaseReference onlineTeams;
 	private DatabaseReference onlineTournaments;
+
+	private String creator;
 
 	private TeamViewModel teamViewModel;
 
@@ -60,8 +65,9 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 
 		onlineMatches = FirebaseDatabase.getInstance().getReference("matches");
 		onlineRankings = FirebaseDatabase.getInstance().getReference("rankings");
-		onlineTeams = FirebaseDatabase.getInstance().getReference("teams");
 		onlineTournaments = FirebaseDatabase.getInstance().getReference("tournaments");
+
+		creator = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
 		teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
 	}
@@ -74,13 +80,29 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 				.setView(getContentView())
 				.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
+					public void onClick(DialogInterface dialog, int which) {
 						if(isValid()) {
-							Tournament tournament = createTournament();
+							// Check if the given tournament name already exists in the database
+							onlineTournaments.orderByChild("name").equalTo(nameEditText.getText().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+								@Override
+								public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+									if(!dataSnapshot.exists()) {
+										Tournament tournament = createTournament();
 
-							onlineTournaments.child(tournament.getId()).setValue(tournament);
+										onlineTournaments.child(tournament.getId()).setValue(tournament);
 
-							createMatchesAndRankings(tournament);
+										createMatchesAndRankings(tournament);
+									}
+									else {
+										Toast.makeText(requireContext(), "Tournament name already in use!", Toast.LENGTH_SHORT).show();
+									}
+								}
+
+								@Override
+								public void onCancelled(@NonNull DatabaseError databaseError) {
+
+								}
+							});
 						}
 						else {
 							Toast.makeText(requireContext(), "Tournament not created!", Toast.LENGTH_SHORT).show();
@@ -102,8 +124,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 
 		roundsEditText = contentView.findViewById(R.id.tournament_rounds_editText);
 
-		teamSelectionListAdapter = new TeamSelectionListAdapter(this);
-
+		teamSelectionListAdapter = new TeamSelectionListAdapter();
 		new AsyncTask<Void, Void, List<Team>>() {
 			@Override
 			protected List<Team> doInBackground(Void... voids) {
@@ -125,35 +146,37 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 		return contentView;
 	}
 
+	// Check if all given values are valid
 	private boolean isValid() {
+		// Check if the name of the tournament is not an empty string
 		if(!(nameEditText.getText().length() > 0)) {
 			return false;
 		}
 
+		// Check if one of the two types is checked
 		if(!typeCRadioButton.isChecked() && !typeERadioButton.isChecked()) {
 			return false;
 		}
 
+		// Check if "rounds" is a positive number
 		if(!(roundsEditText.getText().length() > 0) || !(Integer.parseInt(roundsEditText.getText().toString()) > 0)) {
 			return false;
 		}
 
-		int selectedTeams = 0;
-		for(Team team : teamSelectionListAdapter.getTeams()) {
-			if(team.getSelected()) {
-				selectedTeams++;
-				if(selectedTeams >= 2) {
-					break;
-				}
-			}
+		// Check if "rounds" is less than 3 if the type of the tournament is "Elimination"
+		if(typeERadioButton.isChecked() && !(Integer.parseInt(roundsEditText.getText().toString()) < 3)) {
+			return false;
 		}
-		if(!(selectedTeams >= 2)) {
+
+		// Check if there are at least 2 selected teams
+		if(!(teamSelectionListAdapter.getSelectedTeams().size() >= 2)) {
 			return false;
 		}
 
 		return true;
 	}
 
+	// Create a new item under Firebase "tournaments" node
 	private Tournament createTournament() {
 		String id = onlineTournaments.push().getKey();
 
@@ -169,32 +192,37 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 
 		int rounds = Integer.parseInt(roundsEditText.getText().toString());
 
-		int teams = 0;
-		for(Team team : teamSelectionListAdapter.getTeams()) {
-			if(team.getSelected()) {
-				teams++;
-			}
-		}
+		int teams = teamSelectionListAdapter.getSelectedTeams().size();
 
-		String comments = commentsEditText.getText().toString();
+		String comments = "Created by: " + creator + "\n\n" + commentsEditText.getText().toString();
 
-		return new Tournament(id, name, type, rounds, teams, comments);
+		return new Tournament(id, creator, name, type, rounds, teams, comments);
 	}
 
+	// Create rankings and matches for the tournament based on the given values
 	private void createMatchesAndRankings(Tournament tournament) {
-		ArrayList<Team> teams = new ArrayList<>();
-		for(Team team : teamSelectionListAdapter.getTeams()) {
-			if(team.getSelected()) {
-				teams.add(team);
-
-				String id = onlineRankings.push().getKey();
-				Ranking ranking = new Ranking(id, tournament.getId(), tournament.getName(), team.getId(), team.getName(), teams.indexOf(team) + 1);
-				onlineRankings.child(ranking.getId()).setValue(ranking);
-			}
+		ArrayList<Team> teams = teamSelectionListAdapter.getSelectedTeams();
+		for(Team team : teams) {
+			String id = onlineRankings.push().getKey();
+			Ranking ranking = new Ranking(id, creator, tournament.getId(), tournament.getName(), team.getId(), team.getName(), teams.indexOf(team) + 1);
+			onlineRankings.child(ranking.getId()).setValue(ranking);
 		}
 
 		ArrayList<ArrayList<Team>> pairs = createPairs(tournament.getType());
 
+		/*
+		 * Championship formulas
+		 * ---------------------
+		 *     Even number of teams:
+		 *         Matches per Matchday = Teams / 2
+		 *         Matchdays per Round = Teams - 1
+		 *         All matches = Rounds * (Teams - 1) * (Teams / 2)
+		 *
+		 *     Odd number of teams:
+		 *         Matches per Matchday = (Teams - 1) / 2
+		 *         Matchdays per Round = Teams
+		 *         All matches = Rounds * Teams * ((Teams - 1) / 2)
+		 */
 		if(tournament.getType().equals("Championship")) {
 			int numberOfMatchesPerDay = (tournament.getTeams() % 2 == 0) ? (tournament.getTeams() / 2) : ((tournament.getTeams() - 1) / 2);
 			int numberOfMatchDays = (tournament.getTeams() % 2 == 0) ? (tournament.getTeams() - 1) : tournament.getTeams();
@@ -213,10 +241,10 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 						Match newMatch;
 
 						if(i % 2 != 0) {
-							newMatch = new Match(id, tournament.getId(), tournament.getName(), day, pair.get(0).getId(), pair.get(0).getName(), pair.get(1).getId(), pair.get(1).getName());
+							newMatch = new Match(id, creator, tournament.getId(), tournament.getName(), day, pair.get(0).getId(), pair.get(0).getName(), pair.get(1).getId(), pair.get(1).getName());
 						}
 						else {
-							newMatch = new Match(id, tournament.getId(), tournament.getName(), day, pair.get(1).getId(), pair.get(1).getName(), pair.get(0).getId(), pair.get(0).getName());
+							newMatch = new Match(id, creator, tournament.getId(), tournament.getName(), day, pair.get(1).getId(), pair.get(1).getName(), pair.get(0).getId(), pair.get(0).getName());
 						}
 
 						onlineMatches.child(id).setValue(newMatch);
@@ -225,6 +253,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 				}
 			}
 		}
+		// Elimination formula can be found in private createPairs function
 		else if(tournament.getType().equals("Elimination")) {
 			for(int i = 1; i <= tournament.getRounds(); i++) {
 				for(ArrayList<Team> pair : pairs) {
@@ -232,10 +261,10 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 					Match newMatch;
 
 					if(i % 2 != 0) {
-						newMatch = new Match(id, tournament.getId(), tournament.getName(), i, pair.get(0).getId(), pair.get(0).getName(), pair.get(1).getId(), pair.get(1).getName());
+						newMatch = new Match(id, creator, tournament.getId(), tournament.getName(), i, pair.get(0).getId(), pair.get(0).getName(), pair.get(1).getId(), pair.get(1).getName());
 					}
 					else {
-						newMatch = new Match(id, tournament.getId(), tournament.getName(), i, pair.get(1).getId(), pair.get(1).getName(), pair.get(0).getId(), pair.get(0).getName());
+						newMatch = new Match(id, creator, tournament.getId(), tournament.getName(), i, pair.get(1).getId(), pair.get(1).getName(), pair.get(0).getId(), pair.get(0).getName());
 					}
 
 					onlineMatches.child(id).setValue(newMatch);
@@ -244,26 +273,17 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 		}
 
 		Toast.makeText(requireContext(), "Tournament \"" + tournament.getName() + "\" created with " + tournament.getTeams() + " teams!", Toast.LENGTH_SHORT).show();
-
-		for(Team team : teamSelectionListAdapter.getTeams()) {
-			if(team.getSelected()) {
-				team.setSelected(false);
-
-				onlineTeams.child(team.getId()).child("selected").setValue(team.getSelected());
-			}
-		}
 	}
 
+	/*
+	 * Create all possible pairs for Championship
+	 * or
+	 * Do one random pairing for Elimination
+	 */
 	private ArrayList<ArrayList<Team>> createPairs(String tournamentType) {
 		ArrayList<ArrayList<Team>> pairs = new ArrayList<>();
 
-		// Collection of teams participating in the tournament
-		ArrayList<Team> teams = new ArrayList<>();
-		for(Team team : teamSelectionListAdapter.getTeams()) {
-			if(team.getSelected()) {
-				teams.add(team);
-			}
-		}
+		ArrayList<Team> teams = teamSelectionListAdapter.getSelectedTeams();
 
 		if(tournamentType.equals("Championship")) {
 
@@ -313,21 +333,31 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 		return pairs;
 	}
 
+	/*
+	 * Organize matches by creating a matchday
+	 * One team plays max. once a day considering tournaments with an odd number of teams
+	 */
 	private ArrayList<ArrayList<Team>> createScheduleForChampionship(ArrayList<ArrayList<Team>> pairs, int numberOfMatchesPerDay, Team teamToIgnore) {
 		ArrayList<ArrayList<Team>> matchDay = new ArrayList<>();
 
+		/*
+		 * Not allowed pairs for each iteration
+		 * An iteration is a successfully inserted match and all the pairs that cannot be used
+		 */
 		ArrayList<ArrayList<ArrayList<Team>>> notUsed = new ArrayList<>();
 		for(int i = 0; i < numberOfMatchesPerDay; i++) {
 			ArrayList<ArrayList<Team>> item = new ArrayList<>();
 			notUsed.add(item);
 		}
 
+		// Until all matches are organized in a matchday
 		while(matchDay.size() != numberOfMatchesPerDay) {
 			boolean successfullyIn = false;
 
 			for(ArrayList<Team> pair: pairs) {
 				boolean notAllowedPair = false;
 
+				// A pair is not allowed if previously set as not allowed in the matchday
 				if(!notUsed.get(matchDay.size()).isEmpty()) {
 					for(ArrayList<Team> notUsedPair : notUsed.get(matchDay.size())) {
 						if(pair.get(0).getName().equals(notUsedPair.get(0).getName()) &&
@@ -338,11 +368,13 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 					}
 				}
 				if(!notAllowedPair) {
+					// A pair is not allowed if a team is ignored in the matchday
 					if((teamToIgnore != null) && (pair.get(0).getName().equals(teamToIgnore.getName()) || pair.get(1).getName().equals(teamToIgnore.getName()))) {
 						notAllowedPair = true;
 					}
 					else {
 						for(ArrayList<Team> matchDayPair: matchDay) {
+							// A pair is not allowed if a team already plays in the matchday
 							if(pair.get(0).getName().equals(matchDayPair.get(0).getName()) ||
 									pair.get(0).getName().equals(matchDayPair.get(1).getName()) ||
 									pair.get(1).getName().equals(matchDayPair.get(0).getName()) ||
@@ -353,6 +385,7 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 						}
 					}
 				}
+				// Add pair as a match to the matchday
 				if(!notAllowedPair) {
 					matchDay.add(pair);
 					pairs.remove(pair);
@@ -360,6 +393,13 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 					break;
 				}
 			}
+			/*
+			 * If no pairs can be inserted successfully in the matchday
+			 *     Add the previously successfully inserted pair to the previous list for not allowed pairs
+			 *     Clear the current list for not allowed pairs
+			 *     Add the previously successfully inserted pair to the pairs list
+			 *     Remove the previously successfully inserted pair from the matchday
+			 */
 			if(!successfullyIn) {
 				notUsed.get(matchDay.size() - 1).add(matchDay.get(matchDay.size() - 1));
 				notUsed.get(matchDay.size()).clear();
@@ -369,10 +409,5 @@ public class NewTournamentDialogFragment extends DialogFragment implements TeamS
 		}
 
 		return matchDay;
-	}
-
-	@Override
-	public void onCheckBoxClicked(Team team) {
-		onlineTeams.child(team.getId()).child("selected").setValue(team.getSelected());
 	}
 }
