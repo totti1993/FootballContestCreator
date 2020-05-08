@@ -1,5 +1,6 @@
 package com.totti.footballcontestcreator.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +12,11 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import com.totti.footballcontestcreator.database.Team;
@@ -34,7 +37,17 @@ public class StatisticsFragment extends Fragment {
 
 		String id = this.getArguments().getString("id");
 
+		final ValueFormatter formatter = new ValueFormatter() {
+			@Override
+			public String getFormattedValue(float value) {
+				return String.valueOf((int) value);
+			}
+		};
+
 		statsPieChart = rootView.findViewById(R.id.stats_pieChart);
+		statsPieChart.getDescription().setEnabled(false);
+		statsPieChart.getLegend().setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+		statsPieChart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
 
 		// Keep the statistics (pie chart) up to date
 		TeamViewModel teamViewModel = new ViewModelProvider(requireActivity()).get(TeamViewModel.class);
@@ -47,8 +60,12 @@ public class StatisticsFragment extends Fragment {
 				entries.add(new PieEntry(team.getAll_time_draws(), "Draws"));
 				entries.add(new PieEntry(team.getAll_time_losses(), "Losses"));
 
-				PieDataSet dataSet = new PieDataSet(entries, "(All Time Stats)");
+				PieDataSet dataSet = new PieDataSet(entries, "(All-time Stats)");
 				dataSet.setColors(ColorTemplate.MATERIAL_COLORS);
+				dataSet.setSliceSpace(2f);
+				dataSet.setValueFormatter(formatter);
+				dataSet.setValueTextColor(Color.WHITE);
+				dataSet.setValueTextSize(20f);
 
 				PieData data = new PieData(dataSet);
 				statsPieChart.setData(data);
