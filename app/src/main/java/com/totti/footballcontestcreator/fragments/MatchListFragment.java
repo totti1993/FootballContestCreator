@@ -358,4 +358,29 @@ public class MatchListFragment extends Fragment implements MatchListAdapter.OnMa
 
 		Toast.makeText(requireContext(), "Next round generated!", Toast.LENGTH_SHORT).show();
 	}
+
+	// Helper method only for testing
+	public ArrayList<ArrayList<Ranking>> generateNextRound_OnlyForTesting(List<Ranking> rankings) {
+		final ArrayList<ArrayList<Ranking>> pairs = new ArrayList<>();
+
+		int numberOfMatches = rankings.size() / 2;
+
+		Random rand = new Random();
+		for(int i = 0; i < numberOfMatches; i++) {
+			Ranking firstRanking = rankings.get(rand.nextInt(rankings.size()));
+			rankings.remove(firstRanking);
+			Ranking secondRanking = rankings.get(rand.nextInt(rankings.size()));
+			rankings.remove(secondRanking);
+
+			ArrayList<Ranking> newPair = new ArrayList<>();
+			newPair.add(firstRanking);
+			newPair.add(secondRanking);
+			Collections.shuffle(newPair);
+			pairs.add(newPair);
+		}
+
+		Collections.shuffle(pairs);
+
+		return pairs;
+	}
 }

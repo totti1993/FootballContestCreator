@@ -98,4 +98,21 @@ public class TeamSelectionListAdapter extends RecyclerView.Adapter<TeamSelection
 		}
 		return selectedTeams;
 	}
+
+	// Helper method only for testing
+	public void updateTeams_OnlyForTesting(List<Team> teams, int[] selected) {
+		this.teams.clear();
+		for(Team team : teams) {
+			ArrayList<Object> selection = new ArrayList<>();
+			selection.add(team);
+			selection.add(false);
+			for(int i : selected) {
+				if(teams.indexOf(team) == i) {
+					selection.set(1, true);
+					break;
+				}
+			}
+			this.teams.add(selection);
+		}
+	}
 }

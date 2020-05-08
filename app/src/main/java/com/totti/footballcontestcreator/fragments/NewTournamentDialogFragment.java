@@ -208,7 +208,7 @@ public class NewTournamentDialogFragment extends DialogFragment {
 			onlineRankings.child(ranking.getId()).setValue(ranking);
 		}
 
-		ArrayList<ArrayList<Team>> pairs = createPairs(tournament.getType());
+		ArrayList<ArrayList<Team>> pairs = createPairs(tournament.getType(), teamSelectionListAdapter.getSelectedTeams());
 
 		/*
 		 * Championship formulas
@@ -280,19 +280,17 @@ public class NewTournamentDialogFragment extends DialogFragment {
 	 * or
 	 * Do one random pairing for Elimination
 	 */
-	private ArrayList<ArrayList<Team>> createPairs(String tournamentType) {
+	private ArrayList<ArrayList<Team>> createPairs(String tournamentType, ArrayList<Team> selectedTeams) {
 		ArrayList<ArrayList<Team>> pairs = new ArrayList<>();
-
-		ArrayList<Team> teams = teamSelectionListAdapter.getSelectedTeams();
 
 		if(tournamentType.equals("Championship")) {
 
 			// Match generator for a round
-			for(int i = 0; i < teams.size() - 1; i++) {
-				for(int j = i + 1; j < teams.size(); j++) {
+			for(int i = 0; i < selectedTeams.size() - 1; i++) {
+				for(int j = i + 1; j < selectedTeams.size(); j++) {
 					ArrayList<Team> newPair = new ArrayList<>();
-					newPair.add(teams.get(i));
-					newPair.add(teams.get(j));
+					newPair.add(selectedTeams.get(i));
+					newPair.add(selectedTeams.get(j));
 					Collections.shuffle(newPair);
 					pairs.add(newPair);
 				}
@@ -302,24 +300,24 @@ public class NewTournamentDialogFragment extends DialogFragment {
 
 			// The highest power of 2 that is less than or equal to the number of teams
 			int highestPower = 1;
-			while(highestPower <= teams.size()) {
+			while(highestPower <= selectedTeams.size()) {
 				highestPower *= 2;
 			}
 			highestPower /= 2;
 
 			// The number of teams who must play a qualifier round
-			int numberOfQualifiables = 2 * (teams.size() - highestPower);
+			int numberOfQualifiables = 2 * (selectedTeams.size() - highestPower);
 
 			// The number of matches in the first round of the tournament based on the existence of the qualifier round
-			int numberOfMatches = (numberOfQualifiables > 0) ? (numberOfQualifiables / 2) : (teams.size() / 2);
+			int numberOfMatches = (numberOfQualifiables > 0) ? (numberOfQualifiables / 2) : (selectedTeams.size() / 2);
 
 			// Match generator for a round
 			Random rand = new Random();
 			for(int i = 0; i < numberOfMatches; i++) {
-				Team firstTeam = teams.get(rand.nextInt(teams.size()));
-				teams.remove(firstTeam);
-				Team secondTeam = teams.get(rand.nextInt(teams.size()));
-				teams.remove(secondTeam);
+				Team firstTeam = selectedTeams.get(rand.nextInt(selectedTeams.size()));
+				selectedTeams.remove(firstTeam);
+				Team secondTeam = selectedTeams.get(rand.nextInt(selectedTeams.size()));
+				selectedTeams.remove(secondTeam);
 
 				ArrayList<Team> newPair = new ArrayList<>();
 				newPair.add(firstTeam);
@@ -409,5 +407,15 @@ public class NewTournamentDialogFragment extends DialogFragment {
 		}
 
 		return matchDay;
+	}
+
+	// Helper methods only for testing
+
+	public ArrayList<ArrayList<Team>> createPairs_OnlyForTesting(String tournamentType, ArrayList<Team> selectedTeams) {
+		return createPairs(tournamentType, selectedTeams);
+	}
+
+	public ArrayList<ArrayList<Team>> createScheduleForChampionship_OnlyForTesting(ArrayList<ArrayList<Team>> pairs, int numberOfMatchesPerDay, Team teamToIgnore) {
+		return createScheduleForChampionship(pairs, numberOfMatchesPerDay, teamToIgnore);
 	}
 }
